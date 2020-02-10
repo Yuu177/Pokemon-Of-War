@@ -9,6 +9,8 @@
 #include <graphics.h>
 #include <conio.h>
 #include "tools.h"
+#include "pokemon_skills.h"
+//#include <stdio.h>
 #pragma comment( lib, "MSIMG32.LIB")	// 引用该库才能使用 TransparentBlt 函数
 
 
@@ -27,6 +29,21 @@ int   g_player_x;						//player初始位置
 int   g_player_y;
 int   g_map_x;							//map截取的位置
 int   g_map_y;
+
+
+
+/*
+struct player
+{
+	//携带的物品
+	int Potion;
+	int Super_Potion;
+	int Hyper_Potion;
+	int Max_Potion;
+	//携带的宝可梦
+	struct pokemon pokemons[4];
+}struct_player;
+*/
 
 
 
@@ -65,7 +82,9 @@ void show_fight(pokemon *, pokemon *);
 void startup_pokemon();
 void show_dialog_box();
 void CharToTchar(const char *, TCHAR *);
-
+void fight_operation_interface(int *, int *, int * , TCHAR [][20], pokemon *, pokemon *);
+void use_skill(char *);
+void fight_interface(pokemon *, int , int , int ,pokemon *, int , int , int );
 
 
 void show_dialog_box()
@@ -96,10 +115,18 @@ void startup_pokemon()
 {
 	PM[0].x = 367;
 	PM[0].y = 420;
+	PM[0].level = 5;
+	PM[0].bleed = 100;
+	PM[0].attack = 10;
 	strcpy(PM[0].skill_1_name, "scream");
-	strcpy(PM[0].skill_2_name, "thrune");
-	strcpy(PM[0].skill_3_name, "haaaaa");
-	strcpy(PM[0].skill_4_name, "fireandwater");
+	PM[0].skill_1_damage = 50;
+	strcpy(PM[0].skill_2_name, "catchit");
+	PM[0].skill_2_damage = 200;
+	strcpy(PM[0].skill_3_name, "lighting");
+	PM[0].skill_3_damage = 40;
+	strcpy(PM[0].skill_4_name, "flash");
+	PM[0].skill_4_damage = 70;
+	PM[1].bleed = 100;
 }
 
 
@@ -121,15 +148,240 @@ void is_fight()
 
 
 
+void use_good(char *good_name)
+{
+
+}
+
+
+
+void use_skill(char *skill_name)
+{
+	if (strcmp(skill_name, "boom") == 0) boom();
+	if (strcmp(skill_name, "scream") == 0) scream();
+	if (strcmp(skill_name, "catchit") == 0) catchit();
+	if (strcmp(skill_name, "lighting") == 0) lighting();
+	if (strcmp(skill_name, "flash") == 0) flash();
+	if (strcmp(skill_name, "thunder") == 0) thunder();
+	if (strcmp(skill_name, "waterattack") == 0) waterattack();
+	if (strcmp(skill_name, "sword") == 0) sword();
+	if (strcmp(skill_name, "firehigh") == 0) firehigh();
+}
+
+
+//点入战斗，物品，宝可梦界面
+void fight_operation_interface(int *x, int *y, int *fight_choose, TCHAR show_str[][20], pokemon *own_pm, pokemon *enemy_pm)
+{
+	setfillcolor(RGB(49, 49, 49));
+	POINT pts[] = { { *x, *y },{ *x,*y + 20 },{ *x + 15, *y + 10 } };
+	solidpolygon(pts, 3);
+
+	outtextxy(80, WINDOWS_HIGH * 3 / 4 + 30, show_str[0]);
+	outtextxy(280, WINDOWS_HIGH * 3 / 4 + 30, show_str[1]);
+	outtextxy(80, WINDOWS_HIGH * 3 / 4 + 90, show_str[2]);
+	outtextxy(280, WINDOWS_HIGH * 3 / 4 + 90, show_str[3]);
+
+	char input;
+	if (_kbhit())
+	{
+		input = _getch();
+		if (input == 'w' && *y - 60 >= WINDOWS_HIGH * 3 / 4 + 30)
+			*y -= 60;
+		if (input == 's' && *y + 60 <= WINDOWS_HIGH * 3 / 4 + 90)
+			*y += 60;
+		if (input == 'a' && *x - 200 >= 60)
+			*x -= 200;
+		if (input == 'd' && *x + 200 <= 260)
+			*x += 200;
+		if (input == 'j')
+		{
+			if (*x == 60 && *y == WINDOWS_HIGH * 3 / 4 + 30)
+			{
+				//基础伤害＝(((攻击方等级×2÷5＋2)×技能威力×攻击力÷防御力)÷50)＋2
+				if (*fight_choose == 1)
+				{
+					use_skill(own_pm->skill_1_name);
+					int damage = (((own_pm->level * 2 / 5 + 2) * own_pm->skill_1_damage) / 50) + 2;
+					enemy_pm->bleed -= damage;
+				}
+				else if (*fight_choose == 2)
+				{
+					use_good("Potion");
+					enemy_pm->bleed += 20;
+					own_pm->bleed -= 10;
+				}
+				else if (*fight_choose == 3)	scream();
+			}
+			if (*x == 260 && *y == WINDOWS_HIGH * 3 / 4 + 30)
+			{
+				if (*fight_choose == 1)
+				{
+					use_skill(own_pm->skill_2_name);
+					int damage = (((own_pm->level * 2 / 5 + 2) * own_pm->skill_2_damage) / 50) + 2;
+					enemy_pm->bleed -= damage;
+				}
+				else if	(*fight_choose == 2)
+				{
+					use_good("Super_Potion");
+					enemy_pm->bleed += 10;
+					own_pm->bleed -= 20;
+				}
+				else if (*fight_choose == 3)	scream();
+			}
+			if (*x == 60 && *y == WINDOWS_HIGH * 3 / 4 + 90)
+			{
+				if (*fight_choose == 1)
+				{
+					use_skill(own_pm->skill_3_name);
+					int damage = (((own_pm->level * 2 / 5 + 2) * own_pm->skill_3_damage) / 50) + 2;
+					enemy_pm->bleed -= damage;
+				}
+				else if (*fight_choose == 2)
+				{
+					use_good("Hyper_Potion");
+				}
+				else if (*fight_choose == 3)	scream();
+			}
+			if (*x == 260 && *y == WINDOWS_HIGH * 3 / 4 + 90)
+			{
+				if (*fight_choose == 1)
+				{
+					use_skill(own_pm->skill_4_name);
+					int damage = (((own_pm->level * 2 / 5 + 2) * own_pm->skill_4_damage) / 50) + 2;
+					enemy_pm->bleed -= damage;
+				}
+				else if (*fight_choose == 2)
+				{
+					use_good("Max_Potion");
+				}
+				else if (*fight_choose == 3)	scream();
+			}
+		}
+		if (input == 'k')
+			*fight_choose = 0;
+	}
+}
+
+
+
+//战斗开始界面绘画封住函数
+void fight_interface(pokemon *own_pm, int own_init_bleed, int own_bleed_width, int own_old_bleed,
+	pokemon *enemy_pm, int enemy_init_bleed, int enemy_bleed_width, int enemy_old_bleed)
+{
+	//战斗场景图片
+	IMAGE img_fight_map;
+	loadimage(&img_fight_map, _T("资源文件\\maps\\fight_map.png"));
+	putimage(0, 0, &img_fight_map);
+
+	//我方宝可梦图片
+	IMAGE img_own_pm;
+	loadimage(&img_own_pm, _T("资源文件\\Pokemons\\own\\Pikachu.png"));
+	transparentimage(NULL, 150, 300, &img_own_pm, RGB(255, 0, 255));	//粉红色背景255，0，255
+
+	//敌人图片
+	IMAGE img_enemy_pm;
+	loadimage(&img_enemy_pm, _T("资源文件\\Pokemons\\enemy\\Entei.png"));
+	transparentimage(NULL, 520, 130, &img_enemy_pm, RGB(255, 0, 255));
+
+	//最下方的战斗状态框
+	setfillcolor(RGB(241, 145, 73));
+	solidroundrect(0, WINDOWS_HIGH * 3 / 4, WINDOWS_WIDTH, WINDOWS_HIGH, 10, 10);
+	setfillcolor(WHITE);
+	solidroundrect(20, WINDOWS_HIGH * 3 / 4 + 5, WINDOWS_WIDTH - 20, WINDOWS_HIGH - 5, 10, 10);
+
+	//右边的框框
+	setfillcolor(RGB(160, 160, 160));
+	fillroundrect(WINDOWS_WIDTH * 3 / 5, WINDOWS_HIGH * 3 / 4, WINDOWS_WIDTH, WINDOWS_HIGH, 10, 10);
+	setfillcolor(WHITE);
+	solidroundrect(WINDOWS_WIDTH * 3 / 5 + 10, WINDOWS_HIGH * 3 / 4 + 10,
+		WINDOWS_WIDTH - 10, WINDOWS_HIGH - 10, 10, 10);
+
+
+	//右下方我方状态框
+	setfillcolor(WHITE);
+	fillroundrect(WINDOWS_WIDTH * 3 / 5, 330, WINDOWS_WIDTH * 3 / 5 + 250, 330 + 90, 10, 10);
+	outtextxy(WINDOWS_WIDTH * 3 / 5 + 20, 340, _T("Pikachu"));
+	outtextxy(WINDOWS_WIDTH * 3 / 5 + 170, 340, _T("Lv:41"));
+	//血条
+	if (own_pm->bleed >= own_init_bleed)
+	{
+		own_bleed_width = 240;
+		own_pm->bleed = own_init_bleed;
+	}
+	else if (own_pm->bleed <= 0)
+	{
+		own_bleed_width = 0;
+		own_pm->bleed = 0;
+	}
+	own_bleed_width = ((double)own_pm->bleed / own_old_bleed) * own_bleed_width;
+	own_old_bleed = own_pm->bleed;
+
+	setcolor(BLACK);
+	setfillcolor(RED);
+	solidrectangle(WINDOWS_WIDTH * 3 / 5 + 20, 375, WINDOWS_WIDTH * 3 / 5 + 240, 375 + 10);
+	setfillcolor(GREEN);
+	solidrectangle(WINDOWS_WIDTH * 3 / 5 + 20, 375, WINDOWS_WIDTH * 3 / 5 + own_bleed_width, 375 + 10);
+	outtextxy(WINDOWS_WIDTH * 3 / 5 + 20, 390, _T("14/20"));
+	//蓝条
+	setfillcolor(RGB(149, 149, 149));
+	solidrectangle(WINDOWS_WIDTH * 3 / 5 + 130, 395, WINDOWS_WIDTH * 3 / 5 + 240, 395 + 8);
+	setfillcolor(RGB(0, 255, 255));
+	solidrectangle(WINDOWS_WIDTH * 3 / 5 + 130, 395, WINDOWS_WIDTH * 3 / 5 + 230, 395 + 8);
+
+
+	//左上方敌方状态框
+	setfillcolor(WHITE);
+	fillroundrect(130, 100, 130 + 250, 100 + 70, 10, 10);
+	outtextxy(130 + 15, 110, _T("Entei"));
+	outtextxy(295, 110, _T("Lv:99"));
+	//敌方血条
+	if (enemy_pm->bleed >= enemy_init_bleed)
+	{
+		enemy_bleed_width = 220;
+		enemy_pm->bleed = enemy_init_bleed;
+	}
+	else if (enemy_pm->bleed <= 0)
+	{
+		enemy_bleed_width = 0;
+		enemy_pm->bleed = 0;
+	}
+	enemy_bleed_width = ((double)enemy_pm->bleed / enemy_old_bleed) * enemy_bleed_width;
+	enemy_old_bleed = enemy_pm->bleed;
+	setfillcolor(RED);
+	solidrectangle(145, 145, 365, 155);
+	setfillcolor(GREEN);
+	solidrectangle(145, 145, 145 + enemy_bleed_width, 155);
+}
+
+
+
+
 void show_fight(pokemon *own_pm, pokemon *enemy_pm)
 {
+	int fight_turn = 1;//1为player攻击，0为地方攻击
 	int fight_choose = 0;//0为战斗准备，1为进入战斗，2为使用物品，3为替换宝可梦，4为逃跑
-	//战斗准备选择光标
+	//战斗准备选择光标 0
 	int choose_x = WINDOWS_WIDTH * 3 / 5 + 30;
 	int choose_y = WINDOWS_HIGH * 3 / 4 + 30;
-	//技能选择光标坐标
+	//技能选择光标坐标 1
 	int skill_x = 60;
 	int skill_y = WINDOWS_HIGH * 3 / 4 + 30;
+	//物品选择光标 2
+	int good_x = 60;
+	int good_y = WINDOWS_HIGH * 3 / 4 + 30;
+	//宝可梦选择光标 3
+	int pokemon_x = 60;
+	int pokemon_y = WINDOWS_HIGH * 3 / 4 + 30;
+
+	//敌方血量长度
+	int enemy_bleed_width = 220;					//血量宽度
+	int enemy_old_bleed = enemy_pm->bleed;			//刷新血量前一次血量
+	const int enemy_init_bleed = enemy_pm->bleed;	//初始化的血量，战斗结束后用来恢复enemy_pm->bleed
+
+	////player血量长度
+	int own_bleed_width = 240;					//血量宽度
+	int own_old_bleed = own_pm->bleed;			//刷新血量前一次血量
+	const int own_init_bleed = own_pm->bleed;	//初始化的血量，战斗结束后用来恢复enemy_pm->bleed
 
 	/************************遇敌提示********************************/
 	//战斗场景图片
@@ -154,50 +406,24 @@ void show_fight(pokemon *own_pm, pokemon *enemy_pm)
 	settextcolor(BLACK);
 	outtextxy(50, WINDOWS_HIGH * 3 / 4 + 30, _T("野生的敌人出现！！！"));
 	FlushBatchDraw();
-	Sleep(1000);
+	//Sleep(1000);
 
 	//清除键盘缓冲区,防止切换过场动画时候按到其他按键
 	FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));	
 
 	while (1)
 	{
-		//战斗场景图片
-		IMAGE img_fight_map;
-		loadimage(&img_fight_map, _T("资源文件\\maps\\fight_map.png"));
-		putimage(0, 0, &img_fight_map);
+		//战斗开始界面绘画封住函数
+		fight_interface(own_pm, own_init_bleed, own_bleed_width, own_old_bleed,
+			enemy_pm, enemy_init_bleed, enemy_bleed_width, enemy_old_bleed);
 
-		//我方宝可梦图片
-		IMAGE img_own_pm;
-		loadimage(&img_own_pm, _T("资源文件\\Pokemons\\own\\Pikachu.png"));
-		transparentimage(NULL, 150, 300, &img_own_pm, RGB(255, 0, 255));	//粉红色背景255，0，255
+		//敌方回合
+		if (fight_turn == 0)
+		{
 
-		//敌人图片
-		IMAGE img_enemy_pm;
-		loadimage(&img_enemy_pm, _T("资源文件\\Pokemons\\enemy\\Entei.png"));
-		transparentimage(NULL, 520, 130, &img_enemy_pm, RGB(255, 0, 255));
+		}
 
-		//最下方的战斗状态框
-		setfillcolor(RGB(241, 145, 73));
-		solidroundrect(0, WINDOWS_HIGH * 3 / 4, WINDOWS_WIDTH, WINDOWS_HIGH, 10, 10);
-		setfillcolor(WHITE);
-		solidroundrect(20, WINDOWS_HIGH * 3 / 4 + 5, WINDOWS_WIDTH - 20, WINDOWS_HIGH - 5, 10, 10);
-
-		//右边的框框
-		setfillcolor(RGB(160, 160, 160));
-		fillroundrect(WINDOWS_WIDTH * 3 / 5, WINDOWS_HIGH * 3 / 4, WINDOWS_WIDTH, WINDOWS_HIGH, 10, 10);
-		setfillcolor(WHITE);
-		solidroundrect(WINDOWS_WIDTH * 3 / 5 + 10, WINDOWS_HIGH * 3 / 4 + 10,
-			WINDOWS_WIDTH - 10, WINDOWS_HIGH - 10, 10, 10);
-
-
-		//右下方我方状态框
-		setfillcolor(WHITE);
-		fillroundrect(WINDOWS_WIDTH * 3 / 5, 330, WINDOWS_WIDTH * 3 / 5 + 250, 330 + 90, 10, 10);
-
-		//左上方敌方状态框
-		setfillcolor(WHITE);
-		fillroundrect(130, 100, 130 + 250, 100 + 70, 10, 10);
-		
+		//准备界面
 		if (fight_choose == 0)
 		{
 			LOGFONT f;
@@ -214,7 +440,7 @@ void show_fight(pokemon *own_pm, pokemon *enemy_pm)
 			outtextxy(WINDOWS_WIDTH * 3 / 5 + 50, WINDOWS_HIGH * 3 / 4 + 90, _T("宝可梦"));
 			outtextxy(WINDOWS_WIDTH * 3 / 5 + 200, WINDOWS_HIGH * 3 / 4 + 90, _T("逃跑"));
 			
-			//战斗准备选择光标
+			//准备界面选择光标
 			setfillcolor(RGB(49, 49, 49));
 			POINT pts[] = { { choose_x, choose_y },{ choose_x,choose_y + 20 },{ choose_x + 15, choose_y + 10 } };
 			solidpolygon(pts, 3);
@@ -246,56 +472,53 @@ void show_fight(pokemon *own_pm, pokemon *enemy_pm)
 				}
 			}
 		}
-
+		
+		//技能选择界面
 		if (fight_choose == 1)
 		{
-			setfillcolor(RGB(49, 49, 49));
-			POINT pts[] = { { skill_x, skill_y },{ skill_x,skill_y + 20 },{ skill_x + 15, skill_y + 10 } };
-			solidpolygon(pts, 3);
-
+			TCHAR show_str[4][20];
 			TCHAR pm_skill[20];
 			CharToTchar(own_pm->skill_1_name, pm_skill);
-			outtextxy(80, WINDOWS_HIGH * 3 / 4 + 30, pm_skill);
+			lstrcpyW(show_str[0], pm_skill);
 			CharToTchar(own_pm->skill_2_name, pm_skill);
-			outtextxy(280, WINDOWS_HIGH * 3 / 4 + 30, pm_skill);
+			lstrcpyW(show_str[1], pm_skill);
 			CharToTchar(own_pm->skill_3_name, pm_skill);
-			outtextxy(80, WINDOWS_HIGH * 3 / 4 + 90, pm_skill);
+			lstrcpyW(show_str[2], pm_skill);
 			CharToTchar(own_pm->skill_4_name, pm_skill);
-			outtextxy(280, WINDOWS_HIGH * 3 / 4 + 90, pm_skill);
-
-			char input;
-			if (_kbhit())
-			{
-				input = _getch();
-				if (input == 'w' && skill_y - 60 >= WINDOWS_HIGH * 3 / 4 + 30)
-					skill_y -= 60;
-				if (input == 's' && skill_y + 60 <= WINDOWS_HIGH * 3 / 4 + 90)
-					skill_y += 60;
-				if (input == 'a' && skill_x - 200 >= 60)
-					skill_x -= 200;
-				if (input == 'd' && skill_x + 200 <= 260)
-					skill_x += 200;
-				if (input == 'j')
-				{
-					if (skill_x == 60 && skill_y == WINDOWS_HIGH * 3 / 4 + 30)
-						//fight_choose = 1;	//技能1
-					if (skill_x == 260 && skill_y == WINDOWS_HIGH * 3 / 4 + 30)
-						//fight_choose = 2;	//技能2
-					if (skill_x == 60 && skill_y == WINDOWS_HIGH * 3 / 4 + 90)
-						//fight_choose = 3;	//技能3
-					if (skill_x == 260 && skill_y == WINDOWS_HIGH * 3 / 4 + 90)
-					{
-						//fight_choose = 4;	//技能4
-					}
-				}
-				if (input == 'k')
-					fight_choose = 0;
-			}
+			lstrcpyW(show_str[3], pm_skill);
+			fight_operation_interface(&skill_x, &skill_y, &fight_choose, show_str, own_pm, enemy_pm);
+			
+		}
+		
+		//物品选择界面
+		if (fight_choose == 2)
+		{
+			TCHAR show_str[4][20];
+			lstrcpyW(show_str[0], _T("Potion"));
+			lstrcpyW(show_str[1], _T("Super_Potion"));
+			lstrcpyW(show_str[2], _T("Hyper_Potion"));
+			lstrcpyW(show_str[3], _T("Max_Potion"));
+			fight_operation_interface(&good_x, &good_y, &fight_choose, show_str, own_pm, enemy_pm);
+		}
+		
+		//替换宝可梦选择界面
+		if (fight_choose == 3)
+		{
+			TCHAR show_str[4][20];
+			lstrcpyW(show_str[0], _T("云无月"));
+			lstrcpyW(show_str[1], _T("岑樱"));
+			lstrcpyW(show_str[2], _T("北洛"));
+			lstrcpyW(show_str[3], _T("-"));
+			fight_operation_interface(&pokemon_x, &pokemon_y, &fight_choose, show_str, own_pm, enemy_pm);
 		}
 
+		/********************************/
 		FlushBatchDraw();
-
+		
 	}
+	//结束后恢复血量
+	enemy_pm->bleed = enemy_init_bleed;
+	own_pm->bleed = own_init_bleed;
 }
 
 
