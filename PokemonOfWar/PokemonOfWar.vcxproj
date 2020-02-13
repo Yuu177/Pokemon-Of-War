@@ -154,6 +154,7 @@
     <ClCompile Include="PokemonOfWar.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="maps.h" />
     <ClInclude Include="pokemon_skills.h" />
     <ClInclude Include="tools.h" />
   </ItemGroup>

@@ -11,12 +11,13 @@
 #include <time.h>
 #include "tools.h"
 #include "pokemon_skills.h"
+#include "maps.h"
 //#include <stdio.h>
 #pragma comment( lib, "MSIMG32.LIB")	// 引用该库才能使用 TransparentBlt 函数
 
 
-#define WINDOWS_WIDTH 800
-#define WINDOWS_HIGH 600
+#define WINDOWS_WIDTH 800				//800
+#define WINDOWS_HIGH 600				//600
 #define PLAYER_WIDTH 32
 #define PLAYER_HIGH 50					//这个高度人物的头顶会多出5个像素
 #define POKEMON_NUMBER 5
@@ -31,6 +32,7 @@ int   g_player_y;
 int   g_map_x;							//map截取的位置
 int   g_map_y;
 
+int g_game_state = 0;					//0为初始菜单界面，1为游戏界面
 
 
 /*
@@ -87,24 +89,170 @@ void fight_operation_interface(int *, int *, int *, TCHAR[][20], pokemon *, poke
 void use_skill(char *);
 void fight_interface(pokemon *, int *, int, pokemon *, int *, int);
 void show_fight_down_box(pokemon *, char *, int, int, bool);
-void startup_font();
+void startup_font(int, int, COLORREF);
 void load_pokemon_picture(pokemon *, int, int);
 void pokemons_refresh();
 void show_fight_right_box(int, int, int, pokemon *);
+void start_menu();
+
+void into_map(int, int, int, int, TCHAR *);
+void left_house_map();
+void mid_red_house_map();
+void judge_into_map();
 
 
 
-void startup_font()
+
+//判断是否进门
+void judge_into_map()
+{
+	if (g_map_x + g_player_x >= 315 && g_map_x + g_player_x < 335 
+		&& g_map_y + g_player_y < 260 && g_player_picture_j == 3)
+		left_house_map();
+	if (g_map_x + g_player_x >= 600 && g_map_x + g_player_x < 620
+		&& g_map_y + g_player_y < 366 && g_player_picture_j == 3)
+		mid_red_house_map();
+}
+
+//地图高340
+void mid_red_house_map()
+{
+	into_map(430, 520, 430, 540, _T("资源文件\\maps\\pokemon_center1.png"));
+}
+
+void left_house_map()
+{
+	into_map(360, 470, 360, 490, _T("资源文件\\maps\\left_house .png"));
+}
+
+
+
+
+void into_map(int p_x, int p_y, int out_x, int out_y, TCHAR *map_path)
+{
+	setbkcolor(BLACK);
+	cleardevice();
+	IMAGE img_into_map;
+	loadimage(&img_into_map, map_path);
+	int player_x = p_x;
+	int player_y = p_y;
+	g_player_picture_i = 0;
+	g_player_picture_j = 3;
+	while (1)
+	{
+		putimage(0, 0, &img_into_map);
+		HDC dstDC = GetImageHDC(NULL);
+		HDC srcDC = GetImageHDC(&g_img_player_walk);
+		int srcX = g_player_picture_i * PLAYER_WIDTH;
+		int srcY = g_player_picture_j * PLAYER_HIGH;
+		TransparentBlt(dstDC, player_x, player_y, PLAYER_WIDTH, PLAYER_HIGH,
+			srcDC, srcX, srcY, PLAYER_WIDTH, PLAYER_HIGH, RGB(29, 248, 6));
+		FlushBatchDraw();
+
+		int step = 10;
+		char input;
+		if (_kbhit())
+		{
+			input = _getch();
+			g_player_picture_i++;
+			if (input == 's')
+			{
+				g_player_picture_j = 0;
+				player_y += step;
+			}
+			if (input == 'a')
+			{
+				g_player_picture_j = 1;
+				player_x -= step;
+			}
+			if (input == 'd')
+			{
+				g_player_picture_j = 2;
+				player_x += step;
+			}
+			if (input == 'w')
+			{
+				g_player_picture_j = 3;
+				player_y -= step;
+			}
+			if (input == 'j')
+			{
+				show_dialog_box();
+			}
+			if (input == 'k')
+				break;
+			if (g_player_picture_i == 4)
+				g_player_picture_i = 0;
+		}
+		if (player_x > out_x - 50 && player_x < out_x + 50 && player_y >= out_y)
+		{
+			g_player_y += 10;	//防止出门然后坐标合适又进门
+			break;
+		}
+	}
+}
+
+
+void start_menu()
+{
+	int y = 205;
+	while (g_game_state == 0)
+	{
+		//在设置背景色之后，并不会改变现有背景色，而是只改变背景色的值，
+		//之后再执行绘图语句，例如 outtextxy，会使用新设置的背景色值。
+		setbkcolor(WHITE);		
+		//如果需要修改全部背景色，可以在设置背景色后执行 cleardevice() 函数
+		cleardevice();	
+
+		startup_font(50, 30, RED);
+		outtextxy(200, 100, _T("Pokemon Of War"));
+		startup_font(25, 0, BLACK);
+		outtextxy(340, 200, _T("开始游戏"));
+		outtextxy(340, 250, _T("读取存档"));
+		outtextxy(340, 300, _T("游戏帮助"));
+		outtextxy(340, 350, _T("退出游戏"));
+
+		setfillcolor(RGB(49, 49, 49));
+		POINT pts[] = { {320, y},{320, y + 16},{330, y + 8} };
+		solidpolygon(pts, 3);
+		FlushBatchDraw();
+		
+		char input;
+		if (_kbhit())
+		{
+			input = _getch();
+			if (input == 'w' && y - 50 >= 205)	y -= 50;
+			if (input == 's' && y + 50 <= 355)	y += 50;	
+			if (input == 'j')
+			{
+				if (y == 205)	g_game_state = 1;
+				if (y == 255)	g_game_state = 2;
+				if (y == 305)	g_game_state = 3;
+				//1.exit(1)表示异常退出, 在退出前可以给出一些提示信息或在调试程序中察看出错原因。
+				//2.exit(0)表示正常退出。
+				if (y == 355)	exit(0);	
+			}
+		}
+	}
+}
+
+
+
+
+void startup_font(int fheight, int fwidth, COLORREF textcolor)
 {
 	LOGFONT f;
 	gettextstyle(&f);
 	wcscpy_s(f.lfFaceName, _T("黑体"));
-	f.lfHeight = 25;
+	f.lfHeight = fheight;
+	f.lfWidth = fwidth;						//自动适应
 	f.lfQuality = ANTIALIASED_QUALITY;		//抗锯齿
 	settextstyle(&f);
 	setbkmode(TRANSPARENT);					//设置文字背景透明			
-	settextcolor(BLACK);
+	settextcolor(textcolor);
 }
+
+
 
 
 
@@ -344,6 +492,8 @@ void show_fight_right_box(int x, int y, int fight_choose, pokemon *pm)
 		outtextxy(WINDOWS_WIDTH * 3 / 5 + 200, WINDOWS_HIGH * 3 / 4 + 30, bleed);
 	}
 }
+
+
 
 
 //点入战斗，物品，宝可梦界面
@@ -776,7 +926,7 @@ void starup_map_and_player()
 				canvas[i][j] = 1;
 			if ((i >= 140 && i < 278) && (j >= 205 && j < 394))			//左上侧空地
 				canvas[i][j] = 1;
-			if ((i >= 278 && i < 786) && (j >= 205 && j < 285))			//左上侧黄色小房子
+			if ((i >= 278 && i < 786) && (j >= 205 && j < 240))			//左上侧黄色小房子
 				canvas[i][j] = 1;
 			if ((i >= 918 && i < 1070) && (j >= 205 && j < 285))		//右边蓝色房子附近小石块
 				canvas[i][j] = 1;
@@ -805,7 +955,7 @@ void starup_map_and_player()
 	BeginBatchDraw();
 
 	//初始化字体
-	startup_font();
+	startup_font(25, 0, BLACK);
 }
 
 
@@ -887,7 +1037,8 @@ void operate()
 		if (input == 'j')
 		{
 			//interface_change_animatio(WINDOWS_WIDTH, WINDOWS_HIGH);
-			show_dialog_box();
+			//show_dialog_box();
+			left_house_map();
 		}
 		if (g_player_picture_i == 4)
 			g_player_picture_i = 0;
@@ -908,9 +1059,12 @@ int main(void)
 {
 	startup_pokemon();
 	starup_map_and_player();
+	//需要先初始化窗口才能够对背景，字体等操作
+	start_menu();
 	while (1)
 	{
 		show_map();
+		judge_into_map();
 		is_fight();
 		pokemons_refresh();
 		operate();
