@@ -37,7 +37,6 @@ void transparentimage(IMAGE *dstimg, int x, int y, IMAGE *srcimg, UINT transpare
 	HDC srcDC = GetImageHDC(srcimg);
 	int w = srcimg->getwidth();
 	int h = srcimg->getheight();
-
 	// 使用 Windows GDI 函数实现透明位图
 	TransparentBlt(dstDC, x, y, w, h, srcDC, 0, 0, w, h, transparentcolor);
 }

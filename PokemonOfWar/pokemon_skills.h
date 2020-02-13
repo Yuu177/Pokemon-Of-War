@@ -7,19 +7,19 @@ void boom()
 	loadimage(&im10, _T("资源文件\\skill\\爆炸bk.jpg"));
 	for (int y = 0; y <= 140; y++)
 	{
-		putimage(30, 200, 250, y, &im10, 0, 0, NOTSRCERASE);
-		putimage(30, 200, 250, y, &im9, 0, 0, SRCINVERT);
+		putimage(70, 300, 250, y, &im10, 0, 0, NOTSRCERASE);
+		putimage(70, 300, 250, y, &im9, 0, 0, SRCINVERT);
 		FlushBatchDraw();
 		Sleep(10);
 	}
 }
-void scream()//尖叫skill
+void scream()//尖叫skill,在己方宝可梦前显示
 {
 	IMAGE im7, im8;
 	loadimage(&im7, _T("资源文件\\skill\\尖叫.jpg"), 70, 220);
 	loadimage(&im8, _T("资源文件\\skill\\尖叫bk.jpg"), 70, 220);
-	putimage(200, 130, &im8, NOTSRCERASE);
-	putimage(200, 130, &im7, SRCINVERT);
+	putimage(250, 250, &im8, NOTSRCERASE);
+	putimage(250, 250, &im7, SRCINVERT);
 	FlushBatchDraw();
 	Sleep(500);
 }
@@ -41,22 +41,22 @@ void lighting()
 	IMAGE im3, im4;
 	loadimage(&im3, _T("资源文件\\skill\\闪电1.jpg"), 70, 200);
 	loadimage(&im4, _T("资源文件\\skill\\闪电1bk.jpg"), 70, 200);
-	putimage(450, 0, &im4, NOTSRCERASE);
-	putimage(450, 0, &im3, SRCINVERT);
+	putimage(550, 0, &im4, NOTSRCERASE);
+	putimage(550, 0, &im3, SRCINVERT);
 	FlushBatchDraw();
 	Sleep(300);
 	IMAGE im5, im6;
 	loadimage(&im5, _T("资源文件\\skill\\闪电2.jpg"), 70, 200);
 	loadimage(&im6, _T("资源文件\\skill\\闪电2bk.jpg"), 70, 200);
-	putimage(450, 0, &im6, NOTSRCERASE);
-	putimage(450, 0, &im5, SRCINVERT);
+	putimage(550, 0, &im6, NOTSRCERASE);
+	putimage(550, 0, &im5, SRCINVERT);
 	FlushBatchDraw();
 	Sleep(300);
 	IMAGE im7, im8;
 	loadimage(&im7, _T("资源文件\\skill\\闪电3.jpg"), 70, 220);
 	loadimage(&im8, _T("资源文件\\skill\\闪电3bk.jpg"), 70, 220);
-	putimage(450, -10, &im8, NOTSRCERASE);
-	putimage(450, -10, &im7, SRCINVERT);
+	putimage(550, -10, &im8, NOTSRCERASE);
+	putimage(550, -10, &im7, SRCINVERT);
 	FlushBatchDraw();
 	Sleep(500);
 	// mciSendString(_T("close sk1"), NULL, 0, NULL);
@@ -67,36 +67,36 @@ void flash()
 	IMAGE im7, im8;
 	loadimage(&im7, _T("资源文件\\skill\\电磁波.jpg"));
 	loadimage(&im8, _T("资源文件\\skill\\电磁波bk.jpg"));
-	putimage(350, 30, &im8, NOTSRCERASE);
-	putimage(350, 30, &im7, SRCINVERT);
+	putimage(500, 30, &im8, NOTSRCERASE);
+	putimage(500, 30, &im7, SRCINVERT);
 	FlushBatchDraw();
 	Sleep(100);
 	IMAGE im9, im10;
 	loadimage(&im9, _T("资源文件\\skill\\电磁波2.jpg"));
 	loadimage(&im10, _T("资源文件\\skill\\电磁波2bk.jpg"));
-	putimage(350, 80, &im10, NOTSRCERASE);
-	putimage(350, 80, &im9, SRCINVERT);
+	putimage(500, 80, &im10, NOTSRCERASE);
+	putimage(500, 80, &im9, SRCINVERT);
 	FlushBatchDraw();
 	Sleep(100);
 	IMAGE im11, im12;
 	loadimage(&im11, _T("资源文件\\skill\\电磁波3.jpg"));
 	loadimage(&im12, _T("资源文件\\skill\\电磁波3bk.jpg"));
-	putimage(350, 105, &im12, NOTSRCERASE);
-	putimage(350, 105, &im11, SRCINVERT);
+	putimage(500, 105, &im12, NOTSRCERASE);
+	putimage(500, 105, &im11, SRCINVERT);
 	FlushBatchDraw();
 	Sleep(100);
 	IMAGE im13, im14;
 	loadimage(&im13, _T("资源文件\\skill\\电磁波4.jpg"));
 	loadimage(&im14, _T("资源文件\\skill\\电磁波4bk.jpg"));
-	putimage(350, 135, &im14, NOTSRCERASE);
-	putimage(350, 135, &im13, SRCINVERT);
+	putimage(500, 135, &im14, NOTSRCERASE);
+	putimage(500, 135, &im13, SRCINVERT);
 	FlushBatchDraw();
 	Sleep(100);
 	IMAGE im15, im16;
 	loadimage(&im15, _T("资源文件\\skill\\电磁波5.jpg"));
 	loadimage(&im16, _T("资源文件\\skill\\电磁波5bk.jpg"));
-	putimage(350, 165, &im16, NOTSRCERASE);
-	putimage(350, 165, &im15, SRCINVERT);
+	putimage(500, 165, &im16, NOTSRCERASE);
+	putimage(500, 165, &im15, SRCINVERT);
 	FlushBatchDraw();
 	Sleep(500);
 	//mciSendString(_T("close sk3"), NULL, 0, NULL);
