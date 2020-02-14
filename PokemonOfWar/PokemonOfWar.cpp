@@ -1,6 +1,6 @@
 ﻿/******************************************
-*	游戏名称：Pokemon Of War
-*	译名：	  战争里的口袋妈妈
+*	英文名称：Pokemon Of War
+*	中文名称：战争里的口袋妈妈
 *	编译环境：vc2017 + EasyX_20200109(beta)
 *	Maker：	  panyu.tan
 *	最初版本：2020/2/7
@@ -77,6 +77,7 @@ struct pokemon
 
 
 
+
 void starup_map_and_player();
 void show_map();
 void gameover();
@@ -100,7 +101,10 @@ void start_menu();
 void into_map(int, int, int, int, TCHAR * ,int (*)[600], int, int, int, int);
 void left_house_map();
 void mid_red_house_map();
+void right_yellow_house_map();
+void shop_house_map();
 void judge_into_map();
+
 
 
 
@@ -114,8 +118,66 @@ void judge_into_map()
 	if (g_map_x + g_player_x >= 600 && g_map_x + g_player_x < 620
 		&& g_map_y + g_player_y < 366 && g_player_picture_j == 3)
 		mid_red_house_map();
+	if (g_map_x + g_player_x >= 850 && g_map_x + g_player_x < 870
+		&& g_map_y + g_player_y < 206 && g_player_picture_j == 3)
+		shop_house_map();
+	if (g_map_x + g_player_x >= 780 && g_map_x + g_player_x < 800
+		&& g_map_y + g_player_y < 530 && g_player_picture_j == 3)
+		right_yellow_house_map();
 }
 
+
+
+
+
+void right_yellow_house_map()
+{
+	//定义该地图画布坐标,使每个像素点坐标为0，0为无障碍，1为有障碍不能通过
+	int(*canvas)[600] = (int(*)[600])malloc(sizeof(int) * 800 * 600);
+	for (int i = 0; i < 800; i++)
+	{
+		for (int j = 0; j < 600; j++)
+		{
+			if (i >= 448 && i < 511 && j >= 302 && j < 358)
+				canvas[i][j] = 1;	//桌子
+			else if ((i >= 524 || i < 352) && j < 208)
+				canvas[i][j] = 1;	//最上面家具
+			else if (((i >= 650 || i < 267) && j >= 432))
+				canvas[i][j] = 1;	//下面的两棵树
+			else
+				canvas[i][j] = 0;
+		}
+	}
+	into_map(395, 409, 370, 410, _T("资源文件\\maps\\right_yellow_house.png"), canvas, 460, 230, 695, 185);
+	free(canvas);
+}
+
+
+
+
+
+void shop_house_map()
+{
+	int(*canvas)[600] = (int(*)[600])malloc(sizeof(int) * 800 * 600);
+	for (int i = 0; i < 800; i++)
+	{
+		for (int j = 0; j < 600; j++)
+		{
+			if (i >= 492 && i < 566 && j >= 307 && j < 390)
+				canvas[i][j] = 1;	//右边第一个商品摆放的地方
+			else if (i >= 663 && j >= 265 && j < 390)
+				canvas[i][j] = 1;	//右边第二个商品摆放的地方
+			else if (i >= 492 && i < 652 && j < 200)
+				canvas[i][j] = 1;	//上面摆放处
+			else if (i < 350 && j < 300)
+				canvas[i][j] = 1;	//柜台
+			else
+				canvas[i][j] = 0;
+		}
+	}
+	into_map(385, 415, 360, 416, _T("资源文件\\maps\\right_blue_house.png"), canvas, 466, 229, 703, 175);
+	free(canvas);
+}
 
 
 
@@ -123,9 +185,21 @@ void judge_into_map()
 void mid_red_house_map()
 {
 	//定义该地图画布坐标,使每个像素点坐标为0，0为无障碍，1为有障碍不能通过
-	//int canvas[800][600] = { 0 };	
-	
-	//into_map(430, 520, 430, 540, _T("资源文件\\maps\\pokemon_center1.png"));
+	int(*canvas)[600] = (int(*)[600])malloc(sizeof(int) * 800 * 600);
+	for (int i = 0; i < 800; i++)
+	{
+		for (int j = 0; j < 600; j++)
+		{
+			if (i >= 291 && i < 511 && j < 230)
+				canvas[i][j] = 1;	//柜台
+			else if (i >= 556 && i < 622 && j >= 365 && j < 405)
+				canvas[i][j] = 1;	//右下角桌子
+			else
+				canvas[i][j] = 0;
+		}
+	}
+	into_map(395, 418, 370, 419, _T("资源文件\\maps\\pokemon_center1.png"), canvas, 469, 139, 665, 184);
+	free(canvas);
 }
 
 
@@ -152,7 +226,7 @@ void left_house_map()
 				canvas[i][j] = 0;
 		}
 	}
-	into_map(370, 409, 355, 410, _T("资源文件\\maps\\left_house .png"), canvas, 460, 245, 624, 131);
+	into_map(370, 409, 355, 410, _T("资源文件\\maps\\left_house.png"), canvas, 460, 245, 624, 131);
 	free(canvas);
 }
 
@@ -192,7 +266,9 @@ void into_map(int p_x, int p_y, int out_x, int out_y, TCHAR *map_path,
 			if (input == 's')
 			{
 				g_player_picture_j = 0;
-				if (canvas[player_x][player_y + PLAYER_HIGH + step] == 0 && player_y + PLAYER_HIGH  < down_border)
+				if (canvas[player_x][player_y + PLAYER_HIGH + step] == 0 
+					&& canvas[player_x + PLAYER_WIDTH][player_y + PLAYER_HIGH + step] == 0
+					&& player_y + PLAYER_HIGH  < down_border)
 				{
 					player_y += step;
 				}
@@ -221,7 +297,9 @@ void into_map(int p_x, int p_y, int out_x, int out_y, TCHAR *map_path,
 			if (input == 'w')
 			{
 				g_player_picture_j = 3;
-				if (canvas[player_x][player_y - step] == 0 && player_y - step >= top_border)
+				if (canvas[player_x][player_y - step] == 0 
+					&& canvas[player_x + PLAYER_WIDTH][player_y - step] == 0
+					&& player_y - step >= top_border)
 				{
 						player_y -= step;
 				}
@@ -1042,7 +1120,9 @@ void operate()
 		if (input == 's' )
 		{
 			g_player_picture_j = 0;
-			if (g_canvas[g_map_x + g_player_x][g_map_y + g_player_y + PLAYER_HIGH + step] == 0)
+			if (g_canvas[g_map_x + g_player_x][g_map_y + g_player_y + PLAYER_HIGH + step] == 0 
+				&& g_canvas[g_map_x + g_player_x + PLAYER_WIDTH][g_map_y + g_player_y + PLAYER_HIGH + step] == 0 
+				&& g_map_y + g_player_y + PLAYER_HIGH + step < 880)
 			{
 				if (g_player_y <= WINDOWS_HIGH / 2 || g_map_y + WINDOWS_HIGH > 870)
 					g_player_y += step;
@@ -1053,7 +1133,9 @@ void operate()
 		if (input == 'a')
 		{
 			g_player_picture_j = 1;
-			if (g_canvas[g_map_x + g_player_x - step][g_map_y + g_player_y] == 0)
+			if (g_canvas[g_map_x + g_player_x - step][g_map_y + g_player_y] == 0 
+				&& g_canvas[g_map_x + g_player_x - step][g_map_y + g_player_y + PLAYER_HIGH] == 0 
+				&& g_map_x + g_player_x - step > 0)
 			{
 				if (g_player_x > WINDOWS_WIDTH / 2 || g_map_x < 10)
 					g_player_x -= step;
@@ -1065,7 +1147,9 @@ void operate()
 		{
 			g_player_picture_j = 2;
 			//+PLAYER_WIDTH 和 +PLAYER_HIGH 是因为绘画人物时候是从左上角开始
-			if (g_canvas[g_map_x + g_player_x + PLAYER_WIDTH + step][g_map_y + g_player_y + PLAYER_HIGH] == 0)
+			if (g_canvas[g_map_x + g_player_x + PLAYER_WIDTH + step][g_map_y + g_player_y] == 0 
+				&& g_canvas[g_map_x + g_player_x + PLAYER_WIDTH + step][g_map_y + g_player_y + PLAYER_HIGH] == 0 
+				&& g_map_x + g_player_x + PLAYER_WIDTH + step < 1280)
 			{
 				if (g_player_x <= WINDOWS_WIDTH / 2 || g_map_x + WINDOWS_WIDTH > 1270)
 					g_player_x += step;
@@ -1076,7 +1160,9 @@ void operate()
 		if (input == 'w')
 		{
 			g_player_picture_j = 3;
-			if (g_canvas[g_map_x + g_player_x][g_map_y + g_player_y - step] == 0)
+			if (g_canvas[g_map_x + g_player_x][g_map_y + g_player_y - step] == 0 
+				&& g_canvas[g_map_x + g_player_x + PLAYER_WIDTH][g_map_y + g_player_y - step] == 0 
+				&& g_map_y + g_player_y - step > 0)
 			{
 				if (g_player_y > WINDOWS_HIGH / 2 || g_map_y < 10)
 					g_player_y -= step;
