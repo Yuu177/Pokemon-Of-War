@@ -1,31 +1,33 @@
 ﻿/******************************************
 *	游戏名称：Pokemon Of War
+*	译名：	  战争里的口袋妈妈
 *	编译环境：vc2017 + EasyX_20200109(beta)
 *	Maker：	  panyu.tan
 *	最初版本：2020/2/7
-*	最后修改：2020/2/8
+*	最后修改：2020/2/14
 *******************************************/
 
 #include <graphics.h>
 #include <conio.h>
 #include <time.h>
+#include <stdlib.h>
 #include "tools.h"
 #include "pokemon_skills.h"
-#include "maps.h"
-//#include <stdio.h>
+
 #pragma comment( lib, "MSIMG32.LIB")	// 引用该库才能使用 TransparentBlt 函数
 
 
-#define WINDOWS_WIDTH 800				//800
-#define WINDOWS_HIGH 600				//600
+#define WINDOWS_WIDTH 800			
+#define WINDOWS_HIGH 600
 #define PLAYER_WIDTH 32
 #define PLAYER_HIGH 50					//这个高度人物的头顶会多出5个像素
 #define POKEMON_NUMBER 5
 
+
+int	g_canvas[1281][881] = { 0 };		//定义地图画布坐标,使每个像素点坐标为0，0为无障碍，1为有障碍不能通过
 IMAGE g_img_city_map;					//1280*880
-int   canvas[1281][881] = { 0 };		//定义地图画布坐标,使每个像素点坐标为0，0为无障碍，1为有障碍不能通过
 IMAGE g_img_player_walk;
-int   g_player_picture_i;				//player图片,i为整张人物图的横坐标，j为纵坐标
+int	  g_player_picture_i;				//player图片,i为整张人物图的横坐标，j为纵坐标
 int   g_player_picture_j;
 int   g_player_x;						//player初始位置
 int   g_player_y;
@@ -95,7 +97,7 @@ void pokemons_refresh();
 void show_fight_right_box(int, int, int, pokemon *);
 void start_menu();
 
-void into_map(int, int, int, int, TCHAR *);
+void into_map(int, int, int, int, TCHAR * ,int (*)[600], int, int, int, int);
 void left_house_map();
 void mid_red_house_map();
 void judge_into_map();
@@ -114,21 +116,52 @@ void judge_into_map()
 		mid_red_house_map();
 }
 
-//地图高340
+
+
+
+
 void mid_red_house_map()
 {
-	into_map(430, 520, 430, 540, _T("资源文件\\maps\\pokemon_center1.png"));
+	//定义该地图画布坐标,使每个像素点坐标为0，0为无障碍，1为有障碍不能通过
+	//int canvas[800][600] = { 0 };	
+	
+	//into_map(430, 520, 430, 540, _T("资源文件\\maps\\pokemon_center1.png"));
 }
+
+
+
 
 void left_house_map()
 {
-	into_map(360, 470, 360, 490, _T("资源文件\\maps\\left_house .png"));
+	int(*canvas)[600] = (int(*)[600])malloc(sizeof(int) * 800 * 600);
+	for (int i = 0; i < 800; i++)
+	{
+		for (int j = 0; j < 600; j++)
+		{
+			if (i < 379 && j < 180)
+				canvas[i][j] = 1;		//左上方柜子
+			else if (i>= 379 && j < 160)
+				canvas[i][j] = 1;		//窗户
+			else if (i >= 546 && j < 200)
+				canvas[i][j] = 1;		//右上角盆栽
+			else if (i < 389 && i >= 327 && j < 320 && j >= 285)
+				canvas[i][j] = 1;		//中间桌子
+			else if(i>=590 && j>=440)
+				canvas[i][j] = 1;		//右下角的树木
+			else
+				canvas[i][j] = 0;
+		}
+	}
+	into_map(370, 409, 355, 410, _T("资源文件\\maps\\left_house .png"), canvas, 460, 245, 624, 131);
+	free(canvas);
 }
 
 
 
 
-void into_map(int p_x, int p_y, int out_x, int out_y, TCHAR *map_path)
+//地图没有加黑色背景时高340
+void into_map(int p_x, int p_y, int out_x, int out_y, TCHAR *map_path, 
+				int(*canvas)[600], int down_border, int left_border, int right_border, int top_border)
 {
 	setbkcolor(BLACK);
 	cleardevice();
@@ -155,42 +188,59 @@ void into_map(int p_x, int p_y, int out_x, int out_y, TCHAR *map_path)
 		{
 			input = _getch();
 			g_player_picture_i++;
+
 			if (input == 's')
 			{
 				g_player_picture_j = 0;
-				player_y += step;
+				if (canvas[player_x][player_y + PLAYER_HIGH + step] == 0 && player_y + PLAYER_HIGH  < down_border)
+				{
+					player_y += step;
+				}
 			}
 			if (input == 'a')
 			{
 				g_player_picture_j = 1;
-				player_x -= step;
+				if (canvas[player_x - step][player_y] == 0
+					&& canvas[player_x - step][player_y + PLAYER_HIGH] == 0
+					&& player_x - step >= left_border)
+				{
+					player_x -= step;
+				}
+					
 			}
 			if (input == 'd')
 			{
 				g_player_picture_j = 2;
-				player_x += step;
+				if (canvas[player_x + PLAYER_WIDTH + step][player_y] == 0 
+					&& canvas[player_x + PLAYER_WIDTH + step][player_y + PLAYER_HIGH] == 0
+					&& player_x + PLAYER_WIDTH + step < right_border)
+				{
+						player_x += step;
+				}
 			}
 			if (input == 'w')
 			{
 				g_player_picture_j = 3;
-				player_y -= step;
+				if (canvas[player_x][player_y - step] == 0 && player_y - step >= top_border)
+				{
+						player_y -= step;
+				}
 			}
 			if (input == 'j')
 			{
-				show_dialog_box();
 			}
-			if (input == 'k')
-				break;
 			if (g_player_picture_i == 4)
 				g_player_picture_i = 0;
 		}
-		if (player_x > out_x - 50 && player_x < out_x + 50 && player_y >= out_y)
+		if (player_x > out_x && player_x < out_x + 50 && player_y >= out_y && g_player_picture_j == 0)
 		{
-			g_player_y += 10;	//防止出门然后坐标合适又进门
+			player_y += 10;	//防止出门然后坐标合适又进门
 			break;
 		}
 	}
 }
+
+
 
 
 void start_menu()
@@ -923,27 +973,27 @@ void starup_map_and_player()
 		for (int j = 0; j < 881; j++)
 		{
 			if (i < 140 || j >= 737 || j < 205)							//外围
-				canvas[i][j] = 1;
+				g_canvas[i][j] = 1;
 			if ((i >= 140 && i < 278) && (j >= 205 && j < 394))			//左上侧空地
-				canvas[i][j] = 1;
+				g_canvas[i][j] = 1;
 			if ((i >= 278 && i < 786) && (j >= 205 && j < 240))			//左上侧黄色小房子
-				canvas[i][j] = 1;
+				g_canvas[i][j] = 1;
 			if ((i >= 918 && i < 1070) && (j >= 205 && j < 285))		//右边蓝色房子附近小石块
-				canvas[i][j] = 1;
+				g_canvas[i][j] = 1;
 			if ((i >= 1135 && i < 1242) && (j >= 227) && j < 320)		//右边地洞
-				canvas[i][j] = 1;
+				g_canvas[i][j] = 1;
 			if ((i >= 458 && i < 711) && (j >= 285) && j < 365)			//中间红色房子
-				canvas[i][j] = 1;
+				g_canvas[i][j] = 1;
 			if ((i >= 140 && i < 218) && (j >= 463 && j < 737))			//左下的树木
-				canvas[i][j] = 1;
+				g_canvas[i][j] = 1;
 			if ((i >= 284 && i < 508) && (j >= 485 && j < 635))			//左下黄色房子
-				canvas[i][j] = 1;
+				g_canvas[i][j] = 1;
 			if ((i >= 743 && i < 927) && (j >= 450 && j < 517))			//右下黄色房子
-				canvas[i][j] = 1;
+				g_canvas[i][j] = 1;
 			if (i >= 743 && (j >= 640 && j < 737))						//右下横着的树木
-				canvas[i][j] = 1;
+				g_canvas[i][j] = 1;
 			if ((i >= 927 && i < 1070) && (j >= 445 && j < 737))		//右下的树木	
-				canvas[i][j] = 1;
+				g_canvas[i][j] = 1;
 		}
 	}
 
@@ -992,7 +1042,7 @@ void operate()
 		if (input == 's' )
 		{
 			g_player_picture_j = 0;
-			if (canvas[g_map_x + g_player_x][g_map_y + g_player_y + PLAYER_HIGH + step] == 0)
+			if (g_canvas[g_map_x + g_player_x][g_map_y + g_player_y + PLAYER_HIGH + step] == 0)
 			{
 				if (g_player_y <= WINDOWS_HIGH / 2 || g_map_y + WINDOWS_HIGH > 870)
 					g_player_y += step;
@@ -1003,7 +1053,7 @@ void operate()
 		if (input == 'a')
 		{
 			g_player_picture_j = 1;
-			if (canvas[g_map_x + g_player_x - step][g_map_y + g_player_y] == 0)
+			if (g_canvas[g_map_x + g_player_x - step][g_map_y + g_player_y] == 0)
 			{
 				if (g_player_x > WINDOWS_WIDTH / 2 || g_map_x < 10)
 					g_player_x -= step;
@@ -1015,7 +1065,7 @@ void operate()
 		{
 			g_player_picture_j = 2;
 			//+PLAYER_WIDTH 和 +PLAYER_HIGH 是因为绘画人物时候是从左上角开始
-			if (canvas[g_map_x + g_player_x + PLAYER_WIDTH + step][g_map_y + g_player_y + PLAYER_HIGH] == 0)
+			if (g_canvas[g_map_x + g_player_x + PLAYER_WIDTH + step][g_map_y + g_player_y + PLAYER_HIGH] == 0)
 			{
 				if (g_player_x <= WINDOWS_WIDTH / 2 || g_map_x + WINDOWS_WIDTH > 1270)
 					g_player_x += step;
@@ -1026,7 +1076,7 @@ void operate()
 		if (input == 'w')
 		{
 			g_player_picture_j = 3;
-			if (canvas[g_map_x + g_player_x][g_map_y + g_player_y - step] == 0)
+			if (g_canvas[g_map_x + g_player_x][g_map_y + g_player_y - step] == 0)
 			{
 				if (g_player_y > WINDOWS_HIGH / 2 || g_map_y < 10)
 					g_player_y -= step;
@@ -1037,8 +1087,8 @@ void operate()
 		if (input == 'j')
 		{
 			//interface_change_animatio(WINDOWS_WIDTH, WINDOWS_HIGH);
-			//show_dialog_box();
-			left_house_map();
+			show_dialog_box();
+			//left_house_map();
 		}
 		if (g_player_picture_i == 4)
 			g_player_picture_i = 0;
@@ -1096,7 +1146,7 @@ void startup_pokemon()
 	PM[0].skill_4_damage = 70;
 
 
-	PM[1].x = 367;
+	PM[1].x = 0;  //367
 	PM[1].y = 420;
 	PM[1].number = 1;
 	strcpy(PM[1].name, "Entei");
