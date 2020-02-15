@@ -104,6 +104,8 @@ void mid_red_house_map();
 void right_yellow_house_map();
 void shop_house_map();
 void judge_into_map();
+void club_house_map();
+void burrow_map();
 
 
 
@@ -124,6 +126,56 @@ void judge_into_map()
 	if (g_map_x + g_player_x >= 780 && g_map_x + g_player_x < 800
 		&& g_map_y + g_player_y < 530 && g_player_picture_j == 3)
 		right_yellow_house_map();
+	if (g_map_x + g_player_x >= 395 && g_map_x + g_player_x < 415
+		&& g_map_y + g_player_y < 638 && g_player_picture_j == 3)
+		club_house_map();
+	if (g_map_x + g_player_x >= 1170 && g_map_x + g_player_x < 1190
+		&& g_map_y + g_player_y < 310 && g_player_picture_j == 3)
+		burrow_map();
+}
+
+
+
+
+void burrow_map()
+{
+	//定义该地图画布坐标,使每个像素点坐标为0，0为无障碍，1为有障碍不能通过
+	int(*canvas)[600] = (int(*)[600])malloc(sizeof(int) * 800 * 600);
+	for (int i = 0; i < 800; i++)
+	{
+		for (int j = 0; j < 600; j++)
+		{
+			if ((i < 360 || i >= 440) && (j >= 206 && j < 465))
+				canvas[i][j] = 1;	//两边
+			else if ((i < 335 || i >= 465) && j < 206)
+				canvas[i][j] = 1;	//平台
+			else
+				canvas[i][j] = 0;
+		}
+	}
+	into_map(385, 495, 365, 496, _T("资源文件\\maps\\burrow.png"), canvas, 546, 269, 568, 80);
+	free(canvas);
+}
+
+
+
+
+void club_house_map()
+{
+	//定义该地图画布坐标,使每个像素点坐标为0，0为无障碍，1为有障碍不能通过
+	int(*canvas)[600] = (int(*)[600])malloc(sizeof(int) * 800 * 600);
+	for (int i = 0; i < 800; i++)
+	{
+		for (int j = 0; j < 600; j++)
+		{
+			if (((i >= 306 && i < 346) || (i >= 455 && i < 495) ) && j >= 424 && j < 475)
+				canvas[i][j] = 1;	//柱子
+			else
+				canvas[i][j] = 0;
+		}
+	}
+	into_map(385, 509, 365, 510, _T("资源文件\\maps\\club_house.png"), canvas, 560, 195, 605, 85);
+	free(canvas);
 }
 
 
@@ -1058,7 +1110,7 @@ void starup_map_and_player()
 				g_canvas[i][j] = 1;
 			if ((i >= 918 && i < 1070) && (j >= 205 && j < 285))		//右边蓝色房子附近小石块
 				g_canvas[i][j] = 1;
-			if ((i >= 1135 && i < 1242) && (j >= 227) && j < 320)		//右边地洞
+			if ((i >= 1135 && i < 1242) && (j >= 227) && j < 305)		//右边地洞
 				g_canvas[i][j] = 1;
 			if ((i >= 458 && i < 711) && (j >= 285) && j < 365)			//中间红色房子
 				g_canvas[i][j] = 1;
@@ -1277,7 +1329,7 @@ void startup_pokemon()
 	PM[3].x = 700;
 	PM[3].y = 420;
 	PM[3].number = 3;
-	strcpy(PM[3].name, "Snorlax");
+	strcpy(PM[3].name, "自来也");
 	PM[3].level = 10;
 	PM[3].experience = 0;
 	PM[3].bleed = 500;
