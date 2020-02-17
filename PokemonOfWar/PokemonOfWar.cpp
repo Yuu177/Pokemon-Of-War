@@ -35,30 +35,47 @@ int   g_player_y;
 int   g_map_x;							//map截取的位置
 int   g_map_y;
 
+int g_game_state = 0;					//0为初始菜单界面，1为游戏界面
+int g_plot = 0;							//剧情判断
+
+
 //npc坐标
 int g_npc1_x = 323;
 int g_npc1_y = 305;
 
+//右下角女孩
 int g_npc_zhang_x = 707;
 int g_npc_zhang_y = 695;
-
+//开始右边
 int g_npc_green_x = 430;
 int g_npc_green_y = 340;
-
+//地穴旁边勇士
 int g_npc_ys_x = 960;
 int g_npc_ys_y = 316;
-
+//右下角卡卡西
 int g_npc_kk_x = 1070;
 int g_npc_kk_y = 595;
 
+int g_npc_burrow_x = 377;
+int g_npc_burrow_y = 130;
 
+int g_npc_sec_office_x = 375;
+int g_npc_sec_office_y = 190;
 
-int g_game_state = 0;					//0为初始菜单界面，1为游戏界面
-int g_plot = 0;
+int g_npc_office_x = 572;
+int g_npc_office_y = 229;
+
+int g_npc_shop_x = 363;
+int g_npc_shop_y = 197;
+
+int g_npc_hospital_x = 410;
+int g_npc_hospital_y = 255;
+
+int g_npc_dorm_x = 254;
+int g_npc_dorm_y = 215;
 
 //枚举地图类型
 enum Map { SCHOOL, DORM, SEC_OFFICE, OFFICE, SHOP, HOSPITAL, BURROW };
-
 
 /*
 struct player
@@ -125,11 +142,11 @@ void start_menu();
 //地图
 void judge_into_map();
 void into_map(int, int, int, int, TCHAR * ,int (*)[600], int, int, int, int, int, int, TCHAR *, enum Map e_map);
-void left_house_map();
-void mid_red_house_map();
-void right_yellow_house_map();
-void shop_house_map();
-void club_house_map();
+void dorm_map();
+void hospital_map();
+void office_map();
+void shop_map();
+void sec_office_map();
 void burrow_map();
 
 //剧情
@@ -142,8 +159,6 @@ void plot_5();
 void plot_6();
 void plot_7();
 void npc1_talk();
-
-
 
 
 
@@ -215,7 +230,8 @@ void judge_plot_and_talk(int player_x ,int player_y,int npc_x ,int npc_y, enum M
 {
 	if (abs(player_x - npc_x) <= 30 && abs(player_y - npc_y) <= 30)
 	{
-		if (npc_x == 254 && npc_y == 215 && e_map == DORM)
+
+		if (npc_x == g_npc_dorm_x && npc_y == g_npc_dorm_y && e_map == DORM)
 		{
 			if (g_plot <= 2)
 			{
@@ -237,7 +253,7 @@ void judge_plot_and_talk(int player_x ,int player_y,int npc_x ,int npc_y, enum M
 		}
 
 
-		else if (npc_x == 377 && npc_y == 130 && e_map == BURROW)
+		else if (npc_x == g_npc_burrow_x && npc_y == g_npc_burrow_y && e_map == BURROW)
 		{
 			if (g_plot == 2)
 			{
@@ -250,7 +266,7 @@ void judge_plot_and_talk(int player_x ,int player_y,int npc_x ,int npc_y, enum M
 				show_dialog_box(_T("怪物:"), _T("......"), _T("......？"));
 		}
 
-		else if (npc_x == 363 && npc_y == 197 && e_map == SHOP)
+		else if (npc_x == g_npc_shop_x && npc_y == g_npc_shop_y && e_map == SHOP)
 		{
 			if (g_plot == 3)
 			{
@@ -263,7 +279,7 @@ void judge_plot_and_talk(int player_x ,int player_y,int npc_x ,int npc_y, enum M
 				show_dialog_box(_T("打印店老板:"), _T("。。。"), _T("。。。。"));
 		}
 
-		else if (npc_x == 572 && npc_y == 229 && e_map == OFFICE)
+		else if (npc_x == g_npc_office_x && npc_y == g_npc_office_y && e_map == OFFICE)
 		{
 			if (g_plot == 5)
 			{
@@ -274,7 +290,7 @@ void judge_plot_and_talk(int player_x ,int player_y,int npc_x ,int npc_y, enum M
 				show_dialog_box(_T("导员:"), _T("近来可好"), _T("。。。。"));
 		}
 
-		else if (npc_x == 375 && npc_y == 190 && SEC_OFFICE)
+		else if (npc_x == g_npc_sec_office_x && npc_y == g_npc_sec_office_y && SEC_OFFICE)
 		{
 			if (g_plot >= 4 && g_plot <= 5)
 			{
@@ -296,6 +312,11 @@ void judge_plot_and_talk(int player_x ,int player_y,int npc_x ,int npc_y, enum M
 			show_dialog_box(_T("green girl:"), _T("如果你有什么不懂的操作可以和我对话"), _T("。。。"));
 			show_dialog_box(_T("green girl:"), _T("反正我也帮不了你"), _T("祝你好运！"));
 		}
+
+		else if (npc_x == g_npc_hospital_x && npc_y == g_npc_hospital_y && e_map == HOSPITAL)
+		{
+			show_dialog_box(_T("hospital girl:"), _T("这里是医院"), _T("有什么需要帮助？"));
+		}
 	}
 
 
@@ -310,27 +331,27 @@ void judge_into_map()
 	if (g_map_x + g_player_x >= 315 && g_map_x + g_player_x < 335 
 		&& g_map_y + g_player_y < 260 && g_map_y + g_player_y >= 240 
 		&& g_player_picture_j == 3)
-		left_house_map();
+		dorm_map();
 
 	if (g_map_x + g_player_x >= 600 && g_map_x + g_player_x < 620
 		&& g_map_y + g_player_y < 366 && g_map_y + g_player_y >= 346
 		&& g_player_picture_j == 3)
-		mid_red_house_map();
+		hospital_map();
 
 	if (g_map_x + g_player_x >= 850 && g_map_x + g_player_x < 870
 		&& g_map_y + g_player_y < 206 && g_map_y + g_player_y >= 186
 		&& g_player_picture_j == 3)
-		shop_house_map();
+		shop_map();
 
 	if (g_map_x + g_player_x >= 780 && g_map_x + g_player_x < 800
 		&& g_map_y + g_player_y < 530 && g_map_y + g_player_y >= 510
 		&& g_player_picture_j == 3)
-		right_yellow_house_map();
+		office_map();
 
 	if (g_map_x + g_player_x >= 395 && g_map_x + g_player_x < 415
 		&& g_map_y + g_player_y < 638 && g_map_y + g_player_y >= 618
 		&& g_player_picture_j == 3)
-		club_house_map();
+		sec_office_map();
 
 	if (g_map_x + g_player_x >= 1170 && g_map_x + g_player_x < 1190
 		&& g_map_y + g_player_y < 310 && g_map_y + g_player_y >= 290
@@ -358,14 +379,14 @@ void burrow_map()
 		}
 	}
 	into_map(385, 495, 365, 496, _T("资源文件\\maps\\burrow.png"),
-		canvas, 546, 269, 568, 80, 380, 130, _T("资源文件\\npc\\7.png"), BURROW);
+		canvas, 546, 269, 568, 80, g_npc_burrow_x, g_npc_burrow_y, _T("资源文件\\npc\\npc7.png"), BURROW);
 	free(canvas);
 }
 
 
 
 
-void club_house_map()
+void sec_office_map()
 {
 	//定义该地图画布坐标,使每个像素点坐标为0，0为无障碍，1为有障碍不能通过
 	int(*canvas)[600] = (int(*)[600])malloc(sizeof(int) * 800 * 600);
@@ -379,8 +400,8 @@ void club_house_map()
 				canvas[i][j] = 0;
 		}
 	}
-	into_map(385, 509, 365, 510, _T("资源文件\\maps\\club_house.png"),
-		canvas, 560, 195, 605, 85, 375, 190, _T("资源文件\\npc\\3.png"), SEC_OFFICE);
+	into_map(385, 509, 365, 510, _T("资源文件\\maps\\sec_office.png"),
+		canvas, 560, 195, 605, 85, g_npc_sec_office_x, g_npc_sec_office_y, _T("资源文件\\npc\\npc3.png"), SEC_OFFICE);
 	free(canvas);
 }
 
@@ -388,7 +409,7 @@ void club_house_map()
 
 
 
-void right_yellow_house_map()
+void office_map()
 {
 	//定义该地图画布坐标,使每个像素点坐标为0，0为无障碍，1为有障碍不能通过
 	int(*canvas)[600] = (int(*)[600])malloc(sizeof(int) * 800 * 600);
@@ -406,8 +427,8 @@ void right_yellow_house_map()
 				canvas[i][j] = 0;
 		}
 	}
-	into_map(395, 409, 370, 410, _T("资源文件\\maps\\right_yellow_house.png"), 
-		canvas, 460, 230, 695, 185, 572, 229, _T("资源文件\\npc\\8.png"), OFFICE);
+	into_map(395, 409, 370, 410, _T("资源文件\\maps\\office.png"), 
+		canvas, 460, 230, 695, 185, g_npc_office_x, g_npc_office_y, _T("资源文件\\npc\\npc8.png"), OFFICE);
 	free(canvas);
 }
 
@@ -415,7 +436,7 @@ void right_yellow_house_map()
 
 
 
-void shop_house_map()
+void shop_map()
 {
 	int(*canvas)[600] = (int(*)[600])malloc(sizeof(int) * 800 * 600);
 	for (int i = 0; i < 800; i++)
@@ -434,15 +455,15 @@ void shop_house_map()
 				canvas[i][j] = 0;
 		}
 	}
-	into_map(385, 415, 360, 416, _T("资源文件\\maps\\right_blue_house.png"), 
-		canvas, 466, 229, 703, 175, 363, 197, _T("资源文件\\npc\\5.png"), SHOP);
+	into_map(385, 415, 360, 416, _T("资源文件\\maps\\shop.png"), 
+		canvas, 466, 229, 703, 175, g_npc_shop_x, g_npc_shop_y, _T("资源文件\\npc\\npc5.png"), SHOP);
 	free(canvas);
 }
 
 
 
 
-void mid_red_house_map()
+void hospital_map()
 {
 	//定义该地图画布坐标,使每个像素点坐标为0，0为无障碍，1为有障碍不能通过
 	int(*canvas)[600] = (int(*)[600])malloc(sizeof(int) * 800 * 600);
@@ -458,15 +479,15 @@ void mid_red_house_map()
 				canvas[i][j] = 0;
 		}
 	}
-	into_map(395, 418, 370, 419, _T("资源文件\\maps\\pokemon_center1.png"), 
-		canvas, 469, 139, 665, 184, 410, 255, _T("资源文件\\npc\\1.png"), HOSPITAL);
+	into_map(395, 418, 370, 419, _T("资源文件\\maps\\hospital.png"), 
+		canvas, 469, 139, 665, 184, g_npc_hospital_x, g_npc_hospital_y, _T("资源文件\\npc\\npc1.png"), HOSPITAL);
 	free(canvas);
 }
 
 
 
 
-void left_house_map()
+void dorm_map()
 {
 	int(*canvas)[600] = (int(*)[600])malloc(sizeof(int) * 800 * 600);
 	for (int i = 0; i < 800; i++)
@@ -487,8 +508,8 @@ void left_house_map()
 				canvas[i][j] = 0;
 		}
 	}
-	into_map(370, 409, 355, 410, _T("资源文件\\maps\\left_house.png"), 
-				canvas, 460, 245, 624, 131, 254, 215, _T("资源文件\\npc\\6.png"), DORM);
+	into_map(370, 409, 355, 410, _T("资源文件\\maps\\dorm.png"), 
+				canvas, 460, 245, 624, 131, g_npc_dorm_x, g_npc_dorm_y, _T("资源文件\\npc\\npc6.png"), DORM);
 	free(canvas);
 }
 
@@ -1315,7 +1336,7 @@ void starup_map_and_player()
 {
 	initgraph(WINDOWS_WIDTH, WINDOWS_HIGH);
 
-	loadimage(&g_img_city_map, _T("资源文件\\maps\\city_map2.png"));
+	loadimage(&g_img_city_map, _T("资源文件\\maps\\school2.png"));
 	g_map_x = 0;
 	g_map_y = 0;
 	for (int i = 0; i < 1281; i++)
@@ -1355,7 +1376,7 @@ void starup_map_and_player()
 		}
 	}
 
-	loadimage(&g_img_player_walk, _T("资源文件\\player1.png"));
+	loadimage(&g_img_player_walk, _T("资源文件\\player.png"));
 	g_player_picture_i = g_player_picture_j = 0;
 	g_player_x = 150;
 	g_player_y = 395;
