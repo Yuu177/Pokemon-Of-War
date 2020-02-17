@@ -22,6 +22,7 @@
 #define PLAYER_WIDTH 32
 #define PLAYER_HIGH 50					//这个高度人物的头顶会多出5个像素
 #define POKEMON_NUMBER 5
+#define NPC_NUMBER 10
 
 
 ///////////////全局变量/////////////////
@@ -40,39 +41,39 @@ int g_plot = 0;							//剧情判断
 
 
 //npc坐标
-int g_npc1_x = 323;
-int g_npc1_y = 305;
+int g_npc1_x;
+int g_npc1_y;
 
 //右下角女孩
-int g_npc_zhang_x = 707;
-int g_npc_zhang_y = 695;
+int g_npc_zhang_x;
+int g_npc_zhang_y;
 //开始右边
-int g_npc_green_x = 430;
-int g_npc_green_y = 340;
+int g_npc_green_x;
+int g_npc_green_y;
 //地穴旁边勇士
-int g_npc_ys_x = 960;
-int g_npc_ys_y = 316;
+int g_npc_ys_x;
+int g_npc_ys_y;
 //右下角卡卡西
-int g_npc_kk_x = 1070;
-int g_npc_kk_y = 595;
+int g_npc_kk_x;
+int g_npc_kk_y;
 
-int g_npc_burrow_x = 377;
-int g_npc_burrow_y = 130;
+int g_npc_burrow_x;
+int g_npc_burrow_y;
 
-int g_npc_sec_office_x = 375;
-int g_npc_sec_office_y = 190;
+int g_npc_sec_office_x;
+int g_npc_sec_office_y;
 
-int g_npc_office_x = 572;
-int g_npc_office_y = 229;
+int g_npc_office_x;
+int g_npc_office_y;
 
-int g_npc_shop_x = 363;
-int g_npc_shop_y = 197;
+int g_npc_shop_x;
+int g_npc_shop_y;
 
-int g_npc_hospital_x = 410;
-int g_npc_hospital_y = 255;
+int g_npc_hospital_x;
+int g_npc_hospital_y;
 
-int g_npc_dorm_x = 254;
-int g_npc_dorm_y = 215;
+int g_npc_dorm_x;
+int g_npc_dorm_y;
 
 //枚举地图类型
 enum Map { SCHOOL, DORM, SEC_OFFICE, OFFICE, SHOP, HOSPITAL, BURROW };
@@ -90,7 +91,12 @@ struct player
 }struct_player;
 */
 
-
+struct Npc
+{
+	int x;
+	int y;
+	int map;
+}NPC[NPC_NUMBER];
 
 struct pokemon
 {
@@ -141,7 +147,7 @@ void start_menu();
 
 //地图
 void judge_into_map();
-void into_map(int, int, int, int, TCHAR * ,int (*)[600], int, int, int, int, int, int, TCHAR *, enum Map e_map);
+void into_map(int, int, int, int, TCHAR * ,int (*)[600], int, int, int, int, TCHAR *, enum Map e_map);
 void dorm_map();
 void hospital_map();
 void office_map();
@@ -150,7 +156,7 @@ void sec_office_map();
 void burrow_map();
 
 //剧情
-void judge_plot_and_talk(int player_x, int player_y, int npc_x, int npc_y, enum Map e_map);
+void judge_plot_and_talk(int player_x, int player_y, enum Map e_map);
 void plot_1();
 void plot_2();
 void plot_3();
@@ -162,6 +168,72 @@ void npc1_talk();
 
 
 
+
+void startup_npc()
+{
+
+	//右下角女孩
+	g_npc_zhang_x = 707;
+	g_npc_zhang_y = 695;
+	NPC[0].x = g_npc_zhang_x;
+	NPC[0].y = g_npc_zhang_y;
+	NPC[0].map = SCHOOL;
+	//开始右边
+	g_npc_green_x = 430;
+	g_npc_green_y = 340;
+	NPC[1].x = g_npc_green_x;		
+	NPC[1].y = g_npc_green_y;
+	NPC[1].map = SCHOOL;
+	//地穴旁边勇士
+	g_npc_ys_x = 960;
+	g_npc_ys_y = 316;
+	NPC[2].x = g_npc_ys_x;
+	NPC[2].y = g_npc_ys_y;
+	NPC[2].map = SCHOOL;
+	
+	//右下角卡卡西
+	g_npc_kk_x = 1070;
+	g_npc_kk_y = 595;
+	NPC[3].x = g_npc_kk_x;
+	NPC[3].y = g_npc_kk_y;
+	NPC[3].map = SCHOOL;
+
+	g_npc_burrow_x = 377;
+	g_npc_burrow_y = 130;
+	NPC[4].x = g_npc_burrow_x;
+	NPC[4].y = g_npc_burrow_y;
+	NPC[4].map = BURROW;
+
+	g_npc_sec_office_x = 375;
+	g_npc_sec_office_y = 190;
+	NPC[5].x = g_npc_sec_office_x;
+	NPC[5].y = g_npc_sec_office_y;
+	NPC[5].map = SEC_OFFICE;
+
+	g_npc_office_x = 572;
+	g_npc_office_y = 229;
+	NPC[6].x = g_npc_office_x;
+	NPC[6].y = g_npc_office_y;
+	NPC[6].map = OFFICE;
+
+	g_npc_shop_x = 363;
+	g_npc_shop_y = 197;
+	NPC[7].x = g_npc_shop_x;
+	NPC[7].y = g_npc_shop_y;
+	NPC[7].map = SHOP;
+
+	g_npc_hospital_x = 410;
+	g_npc_hospital_y = 255;
+	NPC[8].x = g_npc_hospital_x;
+	NPC[8].y = g_npc_hospital_y;
+	NPC[8].map = HOSPITAL;
+
+	g_npc_dorm_x = 254;
+	g_npc_dorm_y = 215;
+	NPC[9].x = g_npc_dorm_x;
+	NPC[9].y = g_npc_dorm_y;
+	NPC[9].map = DORM;
+}
 
 
 
@@ -226,100 +298,101 @@ void plot_7()
 
 
 
-void judge_plot_and_talk(int player_x ,int player_y,int npc_x ,int npc_y, enum Map e_map)
+void judge_plot_and_talk(int player_x ,int player_y, enum Map e_map)
 {
-	if (abs(player_x - npc_x) <= 30 && abs(player_y - npc_y) <= 30)
+	for (int i = 0; i < NPC_NUMBER; i++)
 	{
-
-		if (npc_x == g_npc_dorm_x && npc_y == g_npc_dorm_y && e_map == DORM)
+		if (abs(player_x - NPC[i].x) <= 30 && abs(player_y - NPC[i].y) <= 30)
 		{
-			if (g_plot <= 2)
+			// && NPC[i].map == e_map 如果相同坐标，通过判断传入的地区参数，来判断属于哪个地图来区分对话和剧情
+			if (NPC[i].x == g_npc_dorm_x && NPC[i].y == g_npc_dorm_y && NPC[i].map == e_map)
 			{
-				g_plot = 2;
-				plot_1();
+				if (g_plot <= 1)
+				{
+					g_plot = 1;
+					plot_1();
+				}
+				else
+					npc1_talk();
 			}
-			else
-				npc1_talk();
-		}
 
-		else if (npc_x == g_npc_zhang_x && npc_y == g_npc_zhang_y && e_map == SCHOOL)
-		{
-			if (g_plot == 2)
+			else if (NPC[i].x == g_npc_zhang_x && NPC[i].y == g_npc_zhang_y && NPC[i].map == e_map)
 			{
-				plot_2();
+				if (g_plot >=1 && g_plot <=2)
+				{
+					g_plot = 2;
+					plot_2();
+				}
+				else
+					show_dialog_box(_T("小张:"), _T("今天天气不错"), _T("不是吗？"));
 			}
-			else
-				show_dialog_box(_T("小张:"), _T("今天天气不错"), _T("不是吗？"));
-		}
 
-
-		else if (npc_x == g_npc_burrow_x && npc_y == g_npc_burrow_y && e_map == BURROW)
-		{
-			if (g_plot == 2)
+			else if (NPC[i].x == g_npc_burrow_x && NPC[i].y == g_npc_burrow_y && NPC[i].map == e_map)
 			{
-				g_plot = 3;
-				plot_3();
+				if (g_plot == 2)
+				{
+					g_plot = 3;
+					plot_3();
+				}
+				else if (g_plot >= 3)
+					show_dialog_box(_T("怪物:"), _T("拿了快滚"), _T("别让我见到你？"));
+				else
+					show_dialog_box(_T("怪物:"), _T("......"), _T("......？"));
 			}
-			else if (g_plot >= 3)
-				show_dialog_box(_T("怪物:"), _T("拿了快滚"), _T("别让我见到你？"));
-			else
-				show_dialog_box(_T("怪物:"), _T("......"), _T("......？"));
-		}
 
-		else if (npc_x == g_npc_shop_x && npc_y == g_npc_shop_y && e_map == SHOP)
-		{
-			if (g_plot == 3)
+			else if (NPC[i].x == g_npc_shop_x && NPC[i].y == g_npc_shop_y && NPC[i].map == e_map)
 			{
-				g_plot = 4;
-				plot_4();
+				if (g_plot == 3)
+				{
+					g_plot = 4;
+					plot_4();
+				}
+				else if (g_plot >= 4)
+					show_dialog_box(_T("打印店老板:"), _T("小子下次你死定了"), _T("。。。。"));
+				else
+					show_dialog_box(_T("打印店老板:"), _T("。。。"), _T("。。。。"));
 			}
-			else if (g_plot >= 4)
-				show_dialog_box(_T("打印店老板:"), _T("小子下次你死定了"), _T("。。。。"));
-			else
-				show_dialog_box(_T("打印店老板:"), _T("。。。"), _T("。。。。"));
-		}
 
-		else if (npc_x == g_npc_office_x && npc_y == g_npc_office_y && e_map == OFFICE)
-		{
-			if (g_plot == 5)
+			else if (NPC[i].x == g_npc_office_x && NPC[i].y == g_npc_office_y && NPC[i].map == e_map)
 			{
-				g_plot = 6;
-				plot_6();
+				if (g_plot == 5)
+				{
+					g_plot = 6;
+					plot_6();
+				}
+				else
+					show_dialog_box(_T("导员:"), _T("近来可好"), _T("。。。。"));
 			}
-			else
-				show_dialog_box(_T("导员:"), _T("近来可好"), _T("。。。。"));
-		}
 
-		else if (npc_x == g_npc_sec_office_x && npc_y == g_npc_sec_office_y && SEC_OFFICE)
-		{
-			if (g_plot >= 4 && g_plot <= 5)
+			else if (NPC[i].x == g_npc_sec_office_x && NPC[i].y == g_npc_sec_office_y && NPC[i].map == e_map)
 			{
-				g_plot = 5;
-				plot_5();
+				if (g_plot >= 4 && g_plot <= 5)
+				{
+					g_plot = 5;
+					plot_5();
+				}
+				else if (g_plot == 6)
+				{
+					g_plot = 7;
+					plot_7();
+				}
+				else
+					show_dialog_box(_T("教务秘书:"), _T("。。。"), _T("。。。。"));
 			}
-			else if (g_plot == 6)
-			{
-				g_plot = 7;
-				plot_7();
-			}
-			else
-				show_dialog_box(_T("教务秘书:"), _T("。。。"), _T("。。。。"));
-		}
-		
-		else if (npc_x == g_npc_green_x && npc_y == g_npc_green_y && e_map == SCHOOL)
-		{
-			show_dialog_box(_T("green girl:"), _T("欢迎来到战争里的口袋妈妈"), _T("my name is green"));
-			show_dialog_box(_T("green girl:"), _T("如果你有什么不懂的操作可以和我对话"), _T("。。。"));
-			show_dialog_box(_T("green girl:"), _T("反正我也帮不了你"), _T("祝你好运！"));
-		}
 
-		else if (npc_x == g_npc_hospital_x && npc_y == g_npc_hospital_y && e_map == HOSPITAL)
-		{
-			show_dialog_box(_T("hospital girl:"), _T("这里是医院"), _T("有什么需要帮助？"));
+			else if (NPC[i].x == g_npc_green_x && NPC[i].y == g_npc_green_y && NPC[i].map == e_map)
+			{
+				show_dialog_box(_T("green girl:"), _T("欢迎来到战争里的口袋妈妈"), _T("my name is green"));
+				show_dialog_box(_T("green girl:"), _T("如果你有什么不懂的操作可以和我对话"), _T("。。。"));
+				show_dialog_box(_T("green girl:"), _T("反正我也帮不了你"), _T("祝你好运！"));
+			}
+
+			else if (NPC[i].x == g_npc_hospital_x && NPC[i].y == g_npc_hospital_y && NPC[i].map == e_map)
+			{
+				show_dialog_box(_T("hospital girl:"), _T("这里是医院"), _T("有什么需要帮助？"));
+			}
 		}
 	}
-
-
 }
 
 
@@ -379,7 +452,7 @@ void burrow_map()
 		}
 	}
 	into_map(385, 495, 365, 496, _T("资源文件\\maps\\burrow.png"),
-		canvas, 546, 269, 568, 80, g_npc_burrow_x, g_npc_burrow_y, _T("资源文件\\npc\\npc7.png"), BURROW);
+			canvas, 546, 269, 568, 80, _T("资源文件\\npc\\npc7.png"), BURROW);
 	free(canvas);
 }
 
@@ -401,7 +474,7 @@ void sec_office_map()
 		}
 	}
 	into_map(385, 509, 365, 510, _T("资源文件\\maps\\sec_office.png"),
-		canvas, 560, 195, 605, 85, g_npc_sec_office_x, g_npc_sec_office_y, _T("资源文件\\npc\\npc3.png"), SEC_OFFICE);
+			canvas, 560, 195, 605, 85, _T("资源文件\\npc\\npc3.png"), SEC_OFFICE);
 	free(canvas);
 }
 
@@ -428,7 +501,7 @@ void office_map()
 		}
 	}
 	into_map(395, 409, 370, 410, _T("资源文件\\maps\\office.png"), 
-		canvas, 460, 230, 695, 185, g_npc_office_x, g_npc_office_y, _T("资源文件\\npc\\npc8.png"), OFFICE);
+			canvas, 460, 230, 695, 185, _T("资源文件\\npc\\npc8.png"), OFFICE);
 	free(canvas);
 }
 
@@ -456,7 +529,7 @@ void shop_map()
 		}
 	}
 	into_map(385, 415, 360, 416, _T("资源文件\\maps\\shop.png"), 
-		canvas, 466, 229, 703, 175, g_npc_shop_x, g_npc_shop_y, _T("资源文件\\npc\\npc5.png"), SHOP);
+			canvas, 466, 229, 703, 175, _T("资源文件\\npc\\npc5.png"), SHOP);
 	free(canvas);
 }
 
@@ -480,7 +553,7 @@ void hospital_map()
 		}
 	}
 	into_map(395, 418, 370, 419, _T("资源文件\\maps\\hospital.png"), 
-		canvas, 469, 139, 665, 184, g_npc_hospital_x, g_npc_hospital_y, _T("资源文件\\npc\\npc1.png"), HOSPITAL);
+			canvas, 469, 139, 665, 184, _T("资源文件\\npc\\npc1.png"), HOSPITAL);
 	free(canvas);
 }
 
@@ -509,7 +582,7 @@ void dorm_map()
 		}
 	}
 	into_map(370, 409, 355, 410, _T("资源文件\\maps\\dorm.png"), 
-				canvas, 460, 245, 624, 131, g_npc_dorm_x, g_npc_dorm_y, _T("资源文件\\npc\\npc6.png"), DORM);
+			canvas, 460, 245, 624, 131, _T("资源文件\\npc\\npc6.png"), DORM);
 	free(canvas);
 }
 
@@ -518,8 +591,7 @@ void dorm_map()
 
 //地图没有加黑色背景时高340
 void into_map(int p_x, int p_y, int out_x, int out_y, TCHAR *map_path, int(*canvas)[600], 
-				int down_border, int left_border, int right_border, int top_border , 
-				int npc_x , int npc_y, TCHAR *npc_path, enum Map e_map)
+				int down_border, int left_border, int right_border, int top_border ,  TCHAR *npc_path, enum Map e_map)
 {
 	setbkcolor(BLACK);
 	cleardevice();
@@ -539,7 +611,14 @@ void into_map(int p_x, int p_y, int out_x, int out_y, TCHAR *map_path, int(*canv
 		//地图
 		putimage(0, 0, &img_into_map);
 		//npc
-		transparentimage(NULL, npc_x, npc_y, &img_npc, RGB(255, 0, 255));
+		for (int i = 0; i < NPC_NUMBER; i++)
+		{
+			if (NPC[i].map == e_map)
+			{
+				transparentimage(NULL, NPC[i].x, NPC[i].y, &img_npc, RGB(255, 0, 255));
+			}
+		}
+		
 		//player
 		HDC dstDC = GetImageHDC(NULL);
 		HDC srcDC = GetImageHDC(&g_img_player_walk);
@@ -599,7 +678,7 @@ void into_map(int p_x, int p_y, int out_x, int out_y, TCHAR *map_path, int(*canv
 			}
 			if (input == 'j')
 			{
-				judge_plot_and_talk(player_x, player_y, npc_x, npc_y, e_map);
+				judge_plot_and_talk(player_x, player_y, e_map);
 			}
 			if (g_player_picture_i == 4)
 				g_player_picture_i = 0;
@@ -1476,12 +1555,7 @@ void operate()
 			//interface_change_animatio(WINDOWS_WIDTH, WINDOWS_HIGH);
 			//show_dialog_box();
 			//left_house_map();
-			judge_plot_and_talk(g_map_x + g_player_x, g_map_y + g_player_y, g_npc1_x, g_npc1_y, SCHOOL);
-			judge_plot_and_talk(g_map_x + g_player_x, g_map_y + g_player_y, g_npc_zhang_x, g_npc_zhang_y, SCHOOL);
-			judge_plot_and_talk(g_map_x + g_player_x, g_map_y + g_player_y, g_npc_green_x, g_npc_green_y, SCHOOL);
-			judge_plot_and_talk(g_map_x + g_player_x, g_map_y + g_player_y, g_npc_ys_x, g_npc_ys_y, SCHOOL);
-			judge_plot_and_talk(g_map_x + g_player_x, g_map_y + g_player_y, g_npc_kk_x, g_npc_kk_y, SCHOOL);
-			judge_plot_and_talk(g_map_x + g_player_x, g_map_y + g_player_y, 398, 670, SCHOOL);
+			judge_plot_and_talk(g_map_x + g_player_x, g_map_y + g_player_y, SCHOOL);
 		}
 		if (g_player_picture_i == 4)
 			g_player_picture_i = 0;
@@ -1500,6 +1574,7 @@ void gameover()
 
 int main(void)
 {
+	startup_npc();
 	startup_pokemon();
 	starup_map_and_player();
 	//需要先初始化窗口才能够对背景，字体等操作
