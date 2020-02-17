@@ -4,7 +4,7 @@
 *	编译环境：vc2017 + EasyX_20200109(beta)
 *	Maker：	  panyu.tan
 *	最初版本：2020/2/7
-*	最后修改：2020/2/14
+*	最后修改：2020/2/17
 *******************************************/
 
 #include <graphics.h>
@@ -16,7 +16,7 @@
 
 #pragma comment( lib, "MSIMG32.LIB")	// 引用该库才能使用 TransparentBlt 函数
 
-
+///////////////宏定义///////////////
 #define WINDOWS_WIDTH 800			
 #define WINDOWS_HIGH 600
 #define PLAYER_WIDTH 32
@@ -24,6 +24,7 @@
 #define POKEMON_NUMBER 5
 
 
+///////////////全局变量/////////////////
 int	g_canvas[1281][881] = { 0 };		//定义地图画布坐标,使每个像素点坐标为0，0为无障碍，1为有障碍不能通过
 IMAGE g_img_city_map;					//1280*880
 IMAGE g_img_player_walk;
@@ -34,7 +35,29 @@ int   g_player_y;
 int   g_map_x;							//map截取的位置
 int   g_map_y;
 
+//npc坐标
+int g_npc1_x = 323;
+int g_npc1_y = 305;
+
+int g_npc_zhang_x = 707;
+int g_npc_zhang_y = 695;
+
+int g_npc_green_x = 430;
+int g_npc_green_y = 340;
+
+int g_npc_ys_x = 960;
+int g_npc_ys_y = 316;
+
+int g_npc_kk_x = 1070;
+int g_npc_kk_y = 595;
+
+
+
 int g_game_state = 0;					//0为初始菜单界面，1为游戏界面
+int g_plot = 0;
+
+//枚举地图类型
+enum Map { SCHOOL, DORM, SEC_OFFICE, OFFICE, SHOP, HOSPITAL, BURROW };
 
 
 /*
@@ -78,6 +101,7 @@ struct pokemon
 
 
 
+///////////////函数声明//////////////////
 void starup_map_and_player();
 void show_map();
 void gameover();
@@ -86,7 +110,7 @@ void interface_change_animatio(int, int);
 void is_fight();
 void show_fight(pokemon *, pokemon *);
 void startup_pokemon();
-void show_dialog_box();
+void show_dialog_box(TCHAR*, TCHAR*, TCHAR*);
 void CharToTchar(const char *, TCHAR *);
 void fight_operation_interface(int *, int *, int *, TCHAR[][20], pokemon *, pokemon *, int *, int *, int *);
 void use_skill(char *);
@@ -98,15 +122,184 @@ void pokemons_refresh();
 void show_fight_right_box(int, int, int, pokemon *);
 void start_menu();
 
-void into_map(int, int, int, int, TCHAR * ,int (*)[600], int, int, int, int);
+//地图
+void judge_into_map();
+void into_map(int, int, int, int, TCHAR * ,int (*)[600], int, int, int, int, int, int, TCHAR *, enum Map e_map);
 void left_house_map();
 void mid_red_house_map();
 void right_yellow_house_map();
 void shop_house_map();
-void judge_into_map();
 void club_house_map();
 void burrow_map();
 
+//剧情
+void judge_plot_and_talk(int player_x, int player_y, int npc_x, int npc_y, enum Map e_map);
+void plot_1();
+void plot_2();
+void plot_3();
+void plot_4();
+void plot_5();
+void plot_6();
+void plot_7();
+void npc1_talk();
+
+
+
+
+
+
+
+
+void npc1_talk()
+{
+	show_dialog_box(_T("npc1:"), _T("wai？"), _T("are u good？"));
+}
+
+
+
+void plot_1()
+{
+	show_dialog_box(_T("npc1:"), _T("hey，你需要去找你的u盘？"), _T("那去校园路上问问别人吧！"));
+	//show_dialog_box(_T("1:"), _T("......"), _T("......"));
+	//show_dialog_box(_T("1:"), _T("什么？你的u盘丢了？"), _T("那你没了"));
+}
+
+
+void plot_2()
+{
+	//show_dialog_box(_T("小张:"), _T("。。。？"), _T("同学你是不是要去教论文？"));
+	show_dialog_box(_T("小张:"), _T("......"), _T("......"));
+	show_dialog_box(_T("小张:"), _T("什么？你的u盘丢了？"), _T("那你没了"));
+	show_dialog_box(_T("小张:"), _T("我听说在山洞里，你去看看"), _T("路上小心！"));
+}
+
+void plot_3()
+{
+	show_dialog_box(_T("怪物:"), _T("sb"), _T("给爷爬"));
+	//show_dialog_box(_T("小张:"), _T("......"), _T("......"));
+	//show_dialog_box(_T("小张:"), _T("什么？你的u盘丢了？"), _T("那你没了"));
+}
+
+void plot_4()
+{
+	show_dialog_box(_T("打印店老板:"), _T("1000rbm"), _T("要么给钱，要么给命！"));
+	//show_dialog_box(_T("小张:"), _T("......"), _T("......"));
+	//show_dialog_box(_T("小张:"), _T("什么？你的u盘丢了？"), _T("那你没了"));
+}
+
+void plot_5()
+{
+	show_dialog_box(_T("教务秘书:"), _T("你谁！"), _T("叫你导员签字！"));
+	//show_dialog_box(_T("小张:"), _T("......"), _T("......"));
+	//show_dialog_box(_T("小张:"), _T("什么？你的u盘丢了？"), _T("那你没了"));
+}
+
+void plot_6()
+{
+	show_dialog_box(_T("导员:"), _T("那个老太婆这么麻烦"), _T("给你通行证"));
+	//show_dialog_box(_T("小张:"), _T("......"), _T("......"));
+	//show_dialog_box(_T("小张:"), _T("什么？你的u盘丢了？"), _T("那你没了"));
+}
+
+void plot_7()
+{
+	show_dialog_box(_T("教务秘书:"), _T("想要交论文？？？"), _T("那先从我的尸体走过去"));
+	//show_dialog_box(_T("小张:"), _T("......"), _T("......"));
+	//show_dialog_box(_T("小张:"), _T("什么？你的u盘丢了？"), _T("那你没了"));
+}
+
+
+
+
+void judge_plot_and_talk(int player_x ,int player_y,int npc_x ,int npc_y, enum Map e_map)
+{
+	if (abs(player_x - npc_x) <= 30 && abs(player_y - npc_y) <= 30)
+	{
+		if (npc_x == 254 && npc_y == 215 && e_map == DORM)
+		{
+			if (g_plot <= 2)
+			{
+				g_plot = 2;
+				plot_1();
+			}
+			else
+				npc1_talk();
+		}
+
+		else if (npc_x == g_npc_zhang_x && npc_y == g_npc_zhang_y && e_map == SCHOOL)
+		{
+			if (g_plot == 2)
+			{
+				plot_2();
+			}
+			else
+				show_dialog_box(_T("小张:"), _T("今天天气不错"), _T("不是吗？"));
+		}
+
+
+		else if (npc_x == 377 && npc_y == 130 && e_map == BURROW)
+		{
+			if (g_plot == 2)
+			{
+				g_plot = 3;
+				plot_3();
+			}
+			else if (g_plot >= 3)
+				show_dialog_box(_T("怪物:"), _T("拿了快滚"), _T("别让我见到你？"));
+			else
+				show_dialog_box(_T("怪物:"), _T("......"), _T("......？"));
+		}
+
+		else if (npc_x == 363 && npc_y == 197 && e_map == SHOP)
+		{
+			if (g_plot == 3)
+			{
+				g_plot = 4;
+				plot_4();
+			}
+			else if (g_plot >= 4)
+				show_dialog_box(_T("打印店老板:"), _T("小子下次你死定了"), _T("。。。。"));
+			else
+				show_dialog_box(_T("打印店老板:"), _T("。。。"), _T("。。。。"));
+		}
+
+		else if (npc_x == 572 && npc_y == 229 && e_map == OFFICE)
+		{
+			if (g_plot == 5)
+			{
+				g_plot = 6;
+				plot_6();
+			}
+			else
+				show_dialog_box(_T("导员:"), _T("近来可好"), _T("。。。。"));
+		}
+
+		else if (npc_x == 375 && npc_y == 190 && SEC_OFFICE)
+		{
+			if (g_plot >= 4 && g_plot <= 5)
+			{
+				g_plot = 5;
+				plot_5();
+			}
+			else if (g_plot == 6)
+			{
+				g_plot = 7;
+				plot_7();
+			}
+			else
+				show_dialog_box(_T("教务秘书:"), _T("。。。"), _T("。。。。"));
+		}
+		
+		else if (npc_x == g_npc_green_x && npc_y == g_npc_green_y && e_map == SCHOOL)
+		{
+			show_dialog_box(_T("green girl:"), _T("欢迎来到战争里的口袋妈妈"), _T("my name is green"));
+			show_dialog_box(_T("green girl:"), _T("如果你有什么不懂的操作可以和我对话"), _T("。。。"));
+			show_dialog_box(_T("green girl:"), _T("反正我也帮不了你"), _T("祝你好运！"));
+		}
+	}
+
+
+}
 
 
 
@@ -115,22 +308,33 @@ void burrow_map();
 void judge_into_map()
 {
 	if (g_map_x + g_player_x >= 315 && g_map_x + g_player_x < 335 
-		&& g_map_y + g_player_y < 260 && g_player_picture_j == 3)
+		&& g_map_y + g_player_y < 260 && g_map_y + g_player_y >= 240 
+		&& g_player_picture_j == 3)
 		left_house_map();
+
 	if (g_map_x + g_player_x >= 600 && g_map_x + g_player_x < 620
-		&& g_map_y + g_player_y < 366 && g_player_picture_j == 3)
+		&& g_map_y + g_player_y < 366 && g_map_y + g_player_y >= 346
+		&& g_player_picture_j == 3)
 		mid_red_house_map();
+
 	if (g_map_x + g_player_x >= 850 && g_map_x + g_player_x < 870
-		&& g_map_y + g_player_y < 206 && g_player_picture_j == 3)
+		&& g_map_y + g_player_y < 206 && g_map_y + g_player_y >= 186
+		&& g_player_picture_j == 3)
 		shop_house_map();
+
 	if (g_map_x + g_player_x >= 780 && g_map_x + g_player_x < 800
-		&& g_map_y + g_player_y < 530 && g_player_picture_j == 3)
+		&& g_map_y + g_player_y < 530 && g_map_y + g_player_y >= 510
+		&& g_player_picture_j == 3)
 		right_yellow_house_map();
+
 	if (g_map_x + g_player_x >= 395 && g_map_x + g_player_x < 415
-		&& g_map_y + g_player_y < 638 && g_player_picture_j == 3)
+		&& g_map_y + g_player_y < 638 && g_map_y + g_player_y >= 618
+		&& g_player_picture_j == 3)
 		club_house_map();
+
 	if (g_map_x + g_player_x >= 1170 && g_map_x + g_player_x < 1190
-		&& g_map_y + g_player_y < 310 && g_player_picture_j == 3)
+		&& g_map_y + g_player_y < 310 && g_map_y + g_player_y >= 290
+		&& g_player_picture_j == 3)
 		burrow_map();
 }
 
@@ -153,7 +357,8 @@ void burrow_map()
 				canvas[i][j] = 0;
 		}
 	}
-	into_map(385, 495, 365, 496, _T("资源文件\\maps\\burrow.png"), canvas, 546, 269, 568, 80);
+	into_map(385, 495, 365, 496, _T("资源文件\\maps\\burrow.png"),
+		canvas, 546, 269, 568, 80, 380, 130, _T("资源文件\\npc\\7.png"), BURROW);
 	free(canvas);
 }
 
@@ -168,13 +373,14 @@ void club_house_map()
 	{
 		for (int j = 0; j < 600; j++)
 		{
-			if (((i >= 306 && i < 346) || (i >= 455 && i < 495) ) && j >= 424 && j < 475)
+			if (((i >= 306 && i < 346) || (i >= 455 && i < 495)) && j >= 424 && j < 475)
 				canvas[i][j] = 1;	//柱子
 			else
 				canvas[i][j] = 0;
 		}
 	}
-	into_map(385, 509, 365, 510, _T("资源文件\\maps\\club_house.png"), canvas, 560, 195, 605, 85);
+	into_map(385, 509, 365, 510, _T("资源文件\\maps\\club_house.png"),
+		canvas, 560, 195, 605, 85, 375, 190, _T("资源文件\\npc\\3.png"), SEC_OFFICE);
 	free(canvas);
 }
 
@@ -200,7 +406,8 @@ void right_yellow_house_map()
 				canvas[i][j] = 0;
 		}
 	}
-	into_map(395, 409, 370, 410, _T("资源文件\\maps\\right_yellow_house.png"), canvas, 460, 230, 695, 185);
+	into_map(395, 409, 370, 410, _T("资源文件\\maps\\right_yellow_house.png"), 
+		canvas, 460, 230, 695, 185, 572, 229, _T("资源文件\\npc\\8.png"), OFFICE);
 	free(canvas);
 }
 
@@ -227,7 +434,8 @@ void shop_house_map()
 				canvas[i][j] = 0;
 		}
 	}
-	into_map(385, 415, 360, 416, _T("资源文件\\maps\\right_blue_house.png"), canvas, 466, 229, 703, 175);
+	into_map(385, 415, 360, 416, _T("资源文件\\maps\\right_blue_house.png"), 
+		canvas, 466, 229, 703, 175, 363, 197, _T("资源文件\\npc\\5.png"), SHOP);
 	free(canvas);
 }
 
@@ -250,7 +458,8 @@ void mid_red_house_map()
 				canvas[i][j] = 0;
 		}
 	}
-	into_map(395, 418, 370, 419, _T("资源文件\\maps\\pokemon_center1.png"), canvas, 469, 139, 665, 184);
+	into_map(395, 418, 370, 419, _T("资源文件\\maps\\pokemon_center1.png"), 
+		canvas, 469, 139, 665, 184, 410, 255, _T("资源文件\\npc\\1.png"), HOSPITAL);
 	free(canvas);
 }
 
@@ -278,7 +487,8 @@ void left_house_map()
 				canvas[i][j] = 0;
 		}
 	}
-	into_map(370, 409, 355, 410, _T("资源文件\\maps\\left_house.png"), canvas, 460, 245, 624, 131);
+	into_map(370, 409, 355, 410, _T("资源文件\\maps\\left_house.png"), 
+				canvas, 460, 245, 624, 131, 254, 215, _T("资源文件\\npc\\6.png"), DORM);
 	free(canvas);
 }
 
@@ -286,11 +496,17 @@ void left_house_map()
 
 
 //地图没有加黑色背景时高340
-void into_map(int p_x, int p_y, int out_x, int out_y, TCHAR *map_path, 
-				int(*canvas)[600], int down_border, int left_border, int right_border, int top_border)
+void into_map(int p_x, int p_y, int out_x, int out_y, TCHAR *map_path, int(*canvas)[600], 
+				int down_border, int left_border, int right_border, int top_border , 
+				int npc_x , int npc_y, TCHAR *npc_path, enum Map e_map)
 {
 	setbkcolor(BLACK);
 	cleardevice();
+
+	IMAGE img_npc;
+	loadimage(&img_npc, npc_path);
+	
+
 	IMAGE img_into_map;
 	loadimage(&img_into_map, map_path);
 	int player_x = p_x;
@@ -299,7 +515,11 @@ void into_map(int p_x, int p_y, int out_x, int out_y, TCHAR *map_path,
 	g_player_picture_j = 3;
 	while (1)
 	{
+		//地图
 		putimage(0, 0, &img_into_map);
+		//npc
+		transparentimage(NULL, npc_x, npc_y, &img_npc, RGB(255, 0, 255));
+		//player
 		HDC dstDC = GetImageHDC(NULL);
 		HDC srcDC = GetImageHDC(&g_img_player_walk);
 		int srcX = g_player_picture_i * PLAYER_WIDTH;
@@ -358,6 +578,7 @@ void into_map(int p_x, int p_y, int out_x, int out_y, TCHAR *map_path,
 			}
 			if (input == 'j')
 			{
+				judge_plot_and_talk(player_x, player_y, npc_x, npc_y, e_map);
 			}
 			if (g_player_picture_i == 4)
 				g_player_picture_i = 0;
@@ -367,6 +588,7 @@ void into_map(int p_x, int p_y, int out_x, int out_y, TCHAR *map_path,
 			player_y += 10;	//防止出门然后坐标合适又进门
 			break;
 		}
+
 	}
 }
 
@@ -531,24 +753,22 @@ void show_fight_down_box(pokemon *pm, char *str, int fight_choose, int n, bool s
 
 
 
-void show_dialog_box()
+void show_dialog_box(TCHAR *name, TCHAR *say1, TCHAR *say2)
 {
 	setfillcolor(RGB(19, 181, 177));
 	solidroundrect(0, WINDOWS_HIGH * 3 / 4, WINDOWS_WIDTH, WINDOWS_HIGH, 10, 10);
-	//solidroundrect(0, WINDOWS_HIGH * 4 / 5, WINDOWS_WIDTH, WINDOWS_HIGH, 10, 10);
 	setfillcolor(WHITE);
 	solidroundrect(20, WINDOWS_HIGH * 3 / 4 + 5, WINDOWS_WIDTH - 20, WINDOWS_HIGH - 5, 10, 10);
-	//solidroundrect(20, WINDOWS_HIGH * 4 / 5 + 5, WINDOWS_WIDTH - 20, WINDOWS_HIGH - 5, 10, 10);
 
 	setfillcolor(RGB(49, 49, 49));
 	POINT pts[] = { { 50,  WINDOWS_HIGH - 20 },{ 70,WINDOWS_HIGH - 20 },{ 50 + 10,  WINDOWS_HIGH - 10} };
 	solidpolygon(pts, 3);
 
 	//startup_font();
-
-	outtextxy(80, WINDOWS_HIGH * 4 / 5 + 20, _T("你醒了？勇者"));
-	outtextxy(80, WINDOWS_HIGH * 4 / 5 + 60, _T("test english"));
-	FlushBatchDraw();
+	outtextxy(50, WINDOWS_HIGH * 3 / 4 + 15, name);
+	outtextxy(50, WINDOWS_HIGH * 3 / 4 + 50, say1);
+	next_step();
+	outtextxy(50, WINDOWS_HIGH * 3 / 4 + 80, say2);
 	next_step();
 }
 
@@ -1095,7 +1315,7 @@ void starup_map_and_player()
 {
 	initgraph(WINDOWS_WIDTH, WINDOWS_HIGH);
 
-	loadimage(&g_img_city_map, _T("资源文件\\maps\\city_map.png"));
+	loadimage(&g_img_city_map, _T("资源文件\\maps\\city_map2.png"));
 	g_map_x = 0;
 	g_map_y = 0;
 	for (int i = 0; i < 1281; i++)
@@ -1104,25 +1324,33 @@ void starup_map_and_player()
 		{
 			if (i < 140 || j >= 737 || j < 205)							//外围
 				g_canvas[i][j] = 1;
-			if ((i >= 140 && i < 278) && (j >= 205 && j < 394))			//左上侧空地
+			else if ((i >= 140 && i < 278) && (j >= 205 && j < 394))			//左上侧空地
 				g_canvas[i][j] = 1;
-			if ((i >= 278 && i < 786) && (j >= 205 && j < 240))			//左上侧黄色小房子
+			else if ((i >= 278 && i < 786) && (j >= 205 && j < 240))			//左上侧黄色小房子
 				g_canvas[i][j] = 1;
-			if ((i >= 918 && i < 1070) && (j >= 205 && j < 285))		//右边蓝色房子附近小石块
+			else if ((i >= 918 && i < 1070) && (j >= 205 && j < 285))		//右边蓝色房子附近小石块
 				g_canvas[i][j] = 1;
-			if ((i >= 1135 && i < 1242) && (j >= 227) && j < 305)		//右边地洞
+			else if ((i >= 1135 && i < 1242) && (j >= 227) && j < 305)		//右边地洞
 				g_canvas[i][j] = 1;
-			if ((i >= 458 && i < 711) && (j >= 285) && j < 365)			//中间红色房子
+			else if ((i >= 458 && i < 711) && (j >= 285) && j < 365)			//中间红色房子
 				g_canvas[i][j] = 1;
-			if ((i >= 140 && i < 218) && (j >= 463 && j < 737))			//左下的树木
+			else if ((i >= 140 && i < 218) && (j >= 463 && j < 737))			//左下的树木
 				g_canvas[i][j] = 1;
-			if ((i >= 284 && i < 508) && (j >= 485 && j < 635))			//左下黄色房子
+			else if ((i >= 284 && i < 508) && (j >= 485 && j < 635))			//左下黄色房子
 				g_canvas[i][j] = 1;
-			if ((i >= 743 && i < 927) && (j >= 450 && j < 517))			//右下黄色房子
+			else if ((i >= 743 && i < 927) && (j >= 450 && j < 517))			//右下黄色房子
 				g_canvas[i][j] = 1;
-			if (i >= 743 && (j >= 640 && j < 737))						//右下横着的树木
+			else if (i >= 743 && (j >= 640 && j < 737))						//右下横着的树木
 				g_canvas[i][j] = 1;
-			if ((i >= 927 && i < 1070) && (j >= 445 && j < 737))		//右下的树木	
+			else if ((i >= 927 && i < 1070) && (j >= 445 && j < 737))		//右下的树木	
+				g_canvas[i][j] = 1;
+			else if ((i >= 435 && i < 482) && (j >= 310 && j < 360))		//绿色npc 
+				g_canvas[i][j] = 1;
+			else if ((i >= 717 && i < 790) && (j >= 691 && j < 750))		//粉色npc 
+				g_canvas[i][j] = 1;
+			else if ((i >= 970 && i < 1000) && (j >= 260 && j < 320))		//勇士npc 
+				g_canvas[i][j] = 1;
+			else if ((i >= 1000 && i < 1100) && (j >= 563 && j < 663))		//卡卡西npc 
 				g_canvas[i][j] = 1;
 		}
 	}
@@ -1154,7 +1382,6 @@ void show_map()
 					srcDC, srcX, srcY, PLAYER_WIDTH, PLAYER_HIGH, RGB(29, 248, 6));
 	//putimage(g_player_x, g_player_y, PLAYER_WIDTH, PLAYER_HIGH, &g_player_walk, g_player_picture_i*PLAYER_WIDTH, g_player_picture_j*PLAYER_HIGH);
 	//transparentimage(NULL, g_player_x, g_player_y, PLAYER_WIDTH, PLAYER_HIGH, &g_img_player_walk, RGB(29,248,6));
-	
 	FlushBatchDraw();
 }
 
@@ -1224,9 +1451,16 @@ void operate()
 		}
 		if (input == 'j')
 		{
+			
 			//interface_change_animatio(WINDOWS_WIDTH, WINDOWS_HIGH);
-			show_dialog_box();
+			//show_dialog_box();
 			//left_house_map();
+			judge_plot_and_talk(g_map_x + g_player_x, g_map_y + g_player_y, g_npc1_x, g_npc1_y, SCHOOL);
+			judge_plot_and_talk(g_map_x + g_player_x, g_map_y + g_player_y, g_npc_zhang_x, g_npc_zhang_y, SCHOOL);
+			judge_plot_and_talk(g_map_x + g_player_x, g_map_y + g_player_y, g_npc_green_x, g_npc_green_y, SCHOOL);
+			judge_plot_and_talk(g_map_x + g_player_x, g_map_y + g_player_y, g_npc_ys_x, g_npc_ys_y, SCHOOL);
+			judge_plot_and_talk(g_map_x + g_player_x, g_map_y + g_player_y, g_npc_kk_x, g_npc_kk_y, SCHOOL);
+			judge_plot_and_talk(g_map_x + g_player_x, g_map_y + g_player_y, 398, 670, SCHOOL);
 		}
 		if (g_player_picture_i == 4)
 			g_player_picture_i = 0;
@@ -1253,6 +1487,7 @@ int main(void)
 	{
 		show_map();
 		judge_into_map();
+		//judge_plot_and_talk();
 		is_fight();
 		pokemons_refresh();
 		operate();
@@ -1326,7 +1561,7 @@ void startup_pokemon()
 	PM[2].skill_4_damage = 70;
 
 
-	PM[3].x = 700;
+	PM[3].x = 0;	//700
 	PM[3].y = 420;
 	PM[3].number = 3;
 	strcpy(PM[3].name, "自来也");
