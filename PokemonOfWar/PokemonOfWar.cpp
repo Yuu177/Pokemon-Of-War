@@ -4,7 +4,7 @@
 *	编译环境：vc2017 + EasyX_20200109(beta)
 *	Maker：	  panyu.tan
 *	最初版本：2020/2/7
-*	最后修改：2020/2/17
+*	最后修改：2020/2/20
 *******************************************/
 
 #include <graphics.h>
@@ -38,7 +38,7 @@ int   g_map_y;
 
 int g_game_state = 0;					//0为初始菜单界面，1为游戏界面
 int g_plot = 0;							//剧情判断
-
+int g_is_win = 0;							//战斗胜利判断，0未loss，1未win
 
 //npc坐标
 int g_npc1_x;
@@ -98,6 +98,17 @@ struct Npc
 	int map;
 }NPC[NPC_NUMBER];
 
+
+//宝可梦技能
+struct skill
+{
+	char name[30];
+	int damage;
+	int init_pp;
+	int left_pp;
+};
+
+
 struct pokemon
 {
 	int  x;								//宝可梦在地图的位置
@@ -111,14 +122,7 @@ struct pokemon
 	int  defence;						//防御
 	int  judge;							//遭遇判断，1为可以遇到，0为在宝可梦时间没有到之前不会刷新
 	int	 time;							//宝可梦刷新时间周期
-	char skill_1_name[30];				//技能名字
-	int  skill_1_damage;				//技能基础伤害
-	char skill_2_name[30];
-	int  skill_2_damage;
-	char skill_3_name[30];
-	int  skill_3_damage;
-	char skill_4_name[30];
-	int  skill_4_damage;
+	struct skill s_skill[4];
 }PM[POKEMON_NUMBER];
 
 
@@ -171,7 +175,6 @@ void npc1_talk();
 
 void startup_npc()
 {
-
 	//右下角女孩
 	g_npc_zhang_x = 707;
 	g_npc_zhang_y = 695;
@@ -247,14 +250,11 @@ void npc1_talk()
 void plot_1()
 {
 	show_dialog_box(_T("npc1:"), _T("hey，你需要去找你的u盘？"), _T("那去校园路上问问别人吧！"));
-	//show_dialog_box(_T("1:"), _T("......"), _T("......"));
-	//show_dialog_box(_T("1:"), _T("什么？你的u盘丢了？"), _T("那你没了"));
 }
 
 
 void plot_2()
 {
-	//show_dialog_box(_T("小张:"), _T("。。。？"), _T("同学你是不是要去教论文？"));
 	show_dialog_box(_T("小张:"), _T("......"), _T("......"));
 	show_dialog_box(_T("小张:"), _T("什么？你的u盘丢了？"), _T("那你没了"));
 	show_dialog_box(_T("小张:"), _T("我听说在山洞里，你去看看"), _T("路上小心！"));
@@ -263,36 +263,26 @@ void plot_2()
 void plot_3()
 {
 	show_dialog_box(_T("怪物:"), _T("sb"), _T("给爷爬"));
-	//show_dialog_box(_T("小张:"), _T("......"), _T("......"));
-	//show_dialog_box(_T("小张:"), _T("什么？你的u盘丢了？"), _T("那你没了"));
 }
 
 void plot_4()
 {
 	show_dialog_box(_T("打印店老板:"), _T("1000rbm"), _T("要么给钱，要么给命！"));
-	//show_dialog_box(_T("小张:"), _T("......"), _T("......"));
-	//show_dialog_box(_T("小张:"), _T("什么？你的u盘丢了？"), _T("那你没了"));
 }
 
 void plot_5()
 {
 	show_dialog_box(_T("教务秘书:"), _T("你谁！"), _T("叫你导员签字！"));
-	//show_dialog_box(_T("小张:"), _T("......"), _T("......"));
-	//show_dialog_box(_T("小张:"), _T("什么？你的u盘丢了？"), _T("那你没了"));
 }
 
 void plot_6()
 {
 	show_dialog_box(_T("导员:"), _T("那个老太婆这么麻烦"), _T("给你通行证"));
-	//show_dialog_box(_T("小张:"), _T("......"), _T("......"));
-	//show_dialog_box(_T("小张:"), _T("什么？你的u盘丢了？"), _T("那你没了"));
 }
 
 void plot_7()
 {
 	show_dialog_box(_T("教务秘书:"), _T("想要交论文？？？"), _T("那先从我的尸体走过去"));
-	//show_dialog_box(_T("小张:"), _T("......"), _T("......"));
-	//show_dialog_box(_T("小张:"), _T("什么？你的u盘丢了？"), _T("那你没了"));
 }
 
 
@@ -302,10 +292,10 @@ void judge_plot_and_talk(int player_x ,int player_y, enum Map e_map)
 {
 	for (int i = 0; i < NPC_NUMBER; i++)
 	{
-		if (abs(player_x - NPC[i].x) <= 30 && abs(player_y - NPC[i].y) <= 30)
+		if (NPC[i].map == e_map && abs(player_x - NPC[i].x) <= 30 && abs(player_y - NPC[i].y) <= 30)
 		{
 			// && NPC[i].map == e_map 如果相同坐标，通过判断传入的地区参数，来判断属于哪个地图来区分对话和剧情
-			if (NPC[i].x == g_npc_dorm_x && NPC[i].y == g_npc_dorm_y && NPC[i].map == e_map)
+			if (NPC[i].x == g_npc_dorm_x && NPC[i].y == g_npc_dorm_y )
 			{
 				if (g_plot <= 1)
 				{
@@ -316,7 +306,7 @@ void judge_plot_and_talk(int player_x ,int player_y, enum Map e_map)
 					npc1_talk();
 			}
 
-			else if (NPC[i].x == g_npc_zhang_x && NPC[i].y == g_npc_zhang_y && NPC[i].map == e_map)
+			else if (NPC[i].x == g_npc_zhang_x && NPC[i].y == g_npc_zhang_y)
 			{
 				if (g_plot >=1 && g_plot <=2)
 				{
@@ -327,12 +317,14 @@ void judge_plot_and_talk(int player_x ,int player_y, enum Map e_map)
 					show_dialog_box(_T("小张:"), _T("今天天气不错"), _T("不是吗？"));
 			}
 
-			else if (NPC[i].x == g_npc_burrow_x && NPC[i].y == g_npc_burrow_y && NPC[i].map == e_map)
+			else if (NPC[i].x == g_npc_burrow_x && NPC[i].y == g_npc_burrow_y)
 			{
 				if (g_plot == 2)
 				{
-					g_plot = 3;
 					plot_3();
+					show_fight(&PM[0], &PM[1]);	//触发剧情，进入战斗
+					if (g_is_win == 1)
+						g_plot = 3;
 				}
 				else if (g_plot >= 3)
 					show_dialog_box(_T("怪物:"), _T("拿了快滚"), _T("别让我见到你？"));
@@ -340,12 +332,14 @@ void judge_plot_and_talk(int player_x ,int player_y, enum Map e_map)
 					show_dialog_box(_T("怪物:"), _T("......"), _T("......？"));
 			}
 
-			else if (NPC[i].x == g_npc_shop_x && NPC[i].y == g_npc_shop_y && NPC[i].map == e_map)
+			else if (NPC[i].x == g_npc_shop_x && NPC[i].y == g_npc_shop_y)
 			{
 				if (g_plot == 3)
 				{
-					g_plot = 4;
 					plot_4();
+					show_fight(&PM[0], &PM[3]);
+					if (g_is_win == 1)	
+						g_plot = 4;
 				}
 				else if (g_plot >= 4)
 					show_dialog_box(_T("打印店老板:"), _T("小子下次你死定了"), _T("。。。。"));
@@ -353,18 +347,20 @@ void judge_plot_and_talk(int player_x ,int player_y, enum Map e_map)
 					show_dialog_box(_T("打印店老板:"), _T("。。。"), _T("。。。。"));
 			}
 
-			else if (NPC[i].x == g_npc_office_x && NPC[i].y == g_npc_office_y && NPC[i].map == e_map)
+			else if (NPC[i].x == g_npc_office_x && NPC[i].y == g_npc_office_y)
 			{
 				if (g_plot == 5)
 				{
 					g_plot = 6;
 					plot_6();
 				}
+				else if (g_plot >= 5)
+					show_dialog_box(_T("导员:"), _T("快去见教务秘书吧"), _T("小心点"));
 				else
 					show_dialog_box(_T("导员:"), _T("近来可好"), _T("。。。。"));
 			}
 
-			else if (NPC[i].x == g_npc_sec_office_x && NPC[i].y == g_npc_sec_office_y && NPC[i].map == e_map)
+			else if (NPC[i].x == g_npc_sec_office_x && NPC[i].y == g_npc_sec_office_y)
 			{
 				if (g_plot >= 4 && g_plot <= 5)
 				{
@@ -373,21 +369,27 @@ void judge_plot_and_talk(int player_x ,int player_y, enum Map e_map)
 				}
 				else if (g_plot == 6)
 				{
-					g_plot = 7;
 					plot_7();
+					show_fight(&PM[0], &PM[2]);
+					if (g_is_win == 1)
+						g_plot = 7;
+				}
+				else if (g_plot >= 7)
+				{
+					show_dialog_box(_T("教务秘书:"), _T("成功上交论文"), _T("游戏结束"));
 				}
 				else
 					show_dialog_box(_T("教务秘书:"), _T("。。。"), _T("。。。。"));
 			}
 
-			else if (NPC[i].x == g_npc_green_x && NPC[i].y == g_npc_green_y && NPC[i].map == e_map)
+			else if (NPC[i].x == g_npc_green_x && NPC[i].y == g_npc_green_y)
 			{
 				show_dialog_box(_T("green girl:"), _T("欢迎来到战争里的口袋妈妈"), _T("my name is green"));
 				show_dialog_box(_T("green girl:"), _T("如果你有什么不懂的操作可以和我对话"), _T("。。。"));
 				show_dialog_box(_T("green girl:"), _T("反正我也帮不了你"), _T("祝你好运！"));
 			}
 
-			else if (NPC[i].x == g_npc_hospital_x && NPC[i].y == g_npc_hospital_y && NPC[i].map == e_map)
+			else if (NPC[i].x == g_npc_hospital_x && NPC[i].y == g_npc_hospital_y)
 			{
 				show_dialog_box(_T("hospital girl:"), _T("这里是医院"), _T("有什么需要帮助？"));
 			}
@@ -866,6 +868,7 @@ void show_dialog_box(TCHAR *name, TCHAR *say1, TCHAR *say2)
 
 	//startup_font();
 	outtextxy(50, WINDOWS_HIGH * 3 / 4 + 15, name);
+	next_step();
 	outtextxy(50, WINDOWS_HIGH * 3 / 4 + 50, say1);
 	next_step();
 	outtextxy(50, WINDOWS_HIGH * 3 / 4 + 80, say2);
@@ -906,9 +909,9 @@ void is_fight()
 			PM[i].y >= g_map_y + g_player_y && PM[i].y < g_map_y + g_player_y + PLAYER_HIGH && PM[i].judge == 1)
 		{
 			PM[i].judge = 0;
-			interface_change_animatio(WINDOWS_WIDTH, WINDOWS_HIGH);
+			//interface_change_animatio(WINDOWS_WIDTH, WINDOWS_HIGH);
 			show_fight(&PM[0], &PM[i]);
-			interface_change_animatio(WINDOWS_WIDTH, WINDOWS_HIGH);
+			//interface_change_animatio(WINDOWS_WIDTH, WINDOWS_HIGH);
 		}
 	}
 	
@@ -952,14 +955,42 @@ void show_fight_right_box(int x, int y, int fight_choose, pokemon *pm)
 		outtextxy(WINDOWS_WIDTH * 3 / 5 + 40, WINDOWS_HIGH * 3 / 4 + 30, _T("PP:"));
 		outtextxy(WINDOWS_WIDTH * 3 / 5 + 40, WINDOWS_HIGH * 3 / 4 + 80, _T("技能强度:"));
 		TCHAR damage[10];
+		TCHAR w_left_pp[10];
+		TCHAR w_init_pp[10];
+		TCHAR str1[2] = _T("/");
 		if (x == 60 && y == WINDOWS_HIGH * 3 / 4 + 30)
-			wsprintf(damage, _T("%d"), pm->skill_1_damage);
+		{
+			wsprintf(damage, _T("%d"), pm->s_skill[0].damage);
+			wsprintf(w_left_pp, _T("%d"), pm->s_skill[0].left_pp);
+			wsprintf(w_init_pp, _T("%d"), pm->s_skill[0].init_pp);
+			lstrcatW(w_left_pp, str1);
+			lstrcatW(w_left_pp, w_init_pp);
+		}	
 		if (x == 260 && y == WINDOWS_HIGH * 3 / 4 + 30)
-			wsprintf(damage, _T("%d"), pm->skill_2_damage);
+		{
+			wsprintf(damage, _T("%d"), pm->s_skill[1].damage);
+			wsprintf(w_left_pp, _T("%d"), pm->s_skill[1].left_pp);
+			wsprintf(w_init_pp, _T("%d"), pm->s_skill[1].init_pp);
+			lstrcatW(w_left_pp, str1);
+			lstrcatW(w_left_pp, w_init_pp);
+		}
 		if (x == 60 && y == WINDOWS_HIGH * 3 / 4 + 90)
-			wsprintf(damage, _T("%d"), pm->skill_3_damage);
+		{
+			wsprintf(damage, _T("%d"), pm->s_skill[2].damage);
+			wsprintf(w_left_pp, _T("%d"), pm->s_skill[2].left_pp);
+			wsprintf(w_init_pp, _T("%d"), pm->s_skill[2].init_pp);
+			lstrcatW(w_left_pp, str1);
+			lstrcatW(w_left_pp, w_init_pp);
+		}	
 		if (x == 260 && y == WINDOWS_HIGH * 3 / 4 + 90)
-			wsprintf(damage, _T("%d"), pm->skill_4_damage);
+		{
+			wsprintf(damage, _T("%d"), pm->s_skill[3].damage);
+			wsprintf(w_left_pp, _T("%d"), pm->s_skill[3].left_pp);
+			wsprintf(w_init_pp, _T("%d"), pm->s_skill[3].init_pp);
+			lstrcatW(w_left_pp, str1);
+			lstrcatW(w_left_pp, w_init_pp);
+		}
+		outtextxy(WINDOWS_WIDTH * 3 / 5 + 200, WINDOWS_HIGH * 3 / 4 + 30, w_left_pp);
 		outtextxy(WINDOWS_WIDTH * 3 / 5 + 200, WINDOWS_HIGH * 3 / 4 + 80, damage);
 	}
 	else if (fight_choose == 2)
@@ -1026,80 +1057,116 @@ void fight_operation_interface(int *x, int *y, int *fight_choose, TCHAR show_str
 		{
 			if (*x == 60 && *y == WINDOWS_HIGH * 3 / 4 + 30)
 			{
-				if (*fight_choose == 1)
-					pm_attack_pm(own_pm, enemy_pm, own_pm->skill_1_name, own_pm->skill_1_damage, 
-						fight_choose, enemy_now_bleed);
+				if (*fight_choose == 1 && own_pm->s_skill[0].left_pp > 0)	//判断pp剩余时候才能使用技能
+				{
+					own_pm->s_skill[0].left_pp--;
+					pm_attack_pm(own_pm, enemy_pm, own_pm->s_skill[0].name, own_pm->s_skill[0].damage,
+								fight_choose, enemy_now_bleed);
+					//操作完轮到对方回合
+					*fight_turn = 0;
+					//每一回合都要返回准备界面
+					*fight_choose = 0;
+				}
+					
 				else if (*fight_choose == 2)
 				{
 					//使用了xx，xx回复了xx点生命
 					show_fight_down_box(own_pm, "Potion", *fight_choose, 10, false);
 					*own_now_bleed += 10;
+					*fight_turn = 0;
+					*fight_choose = 0;
 				}
 				else if (*fight_choose == 3)
 				{
 					show_fight_down_box(own_pm, PM[2].name, *fight_choose, 0, false);
 					*own_pm = PM[2];
 					*own_now_bleed = PM[2].bleed;
+					*fight_turn = 0;
+					*fight_choose = 0;
 				}
 			}
 
-			if (*x == 260 && *y == WINDOWS_HIGH * 3 / 4 + 30)
+			if (*x == 260 && *y == WINDOWS_HIGH * 3 / 4 + 30 && own_pm->s_skill[1].left_pp > 0)
 			{
 				if (*fight_choose == 1)
-					pm_attack_pm(own_pm, enemy_pm, own_pm->skill_2_name, own_pm->skill_2_damage, 
-						fight_choose, enemy_now_bleed);
+				{
+					own_pm->s_skill[1].left_pp--;
+					pm_attack_pm(own_pm, enemy_pm, own_pm->s_skill[1].name, own_pm->s_skill[1].damage,
+								fight_choose, enemy_now_bleed);
+					*fight_turn = 0;
+					*fight_choose = 0;
+				}
+					
 				else if	(*fight_choose == 2)
 				{
 					show_fight_down_box(own_pm, "Super Potion", *fight_choose, 20, false);
 					*own_now_bleed += 20;
+					*fight_turn = 0;
+					*fight_choose = 0;
 				}
 				else if (*fight_choose == 3) 
 				{
 					show_fight_down_box(own_pm, PM[2].name, *fight_choose, 0, false);
 					*own_pm = PM[2];
 					*own_now_bleed = PM[2].bleed;
+					*fight_turn = 0;
+					*fight_choose = 0;
 				}
 			}
 
-			if (*x == 60 && *y == WINDOWS_HIGH * 3 / 4 + 90)
+			if (*x == 60 && *y == WINDOWS_HIGH * 3 / 4 + 90 && own_pm->s_skill[2].left_pp > 0)
 			{
 				if (*fight_choose == 1)
-					pm_attack_pm(own_pm, enemy_pm, own_pm->skill_3_name, own_pm->skill_3_damage, 
-						fight_choose, enemy_now_bleed);
+				{
+					own_pm->s_skill[2].left_pp--;
+					pm_attack_pm(own_pm, enemy_pm, own_pm->s_skill[2].name, own_pm->s_skill[2].damage,
+								fight_choose, enemy_now_bleed);
+					*fight_turn = 0;
+					*fight_choose = 0;
+				}
 				else if (*fight_choose == 2)
 				{
 					show_fight_down_box(own_pm, "Hyper Potion", *fight_choose, 30, false);
 					*own_now_bleed += 30;
+					*fight_turn = 0;
+					*fight_choose = 0;
 				}
 				else if (*fight_choose == 3)
 				{
 					show_fight_down_box(own_pm, PM[2].name, *fight_choose, 0, false);
 					*own_pm = PM[2];
 					*own_now_bleed = PM[2].bleed;
+					*fight_turn = 0;
+					*fight_choose = 0;
 				}
 			}
 
-			if (*x == 260 && *y == WINDOWS_HIGH * 3 / 4 + 90)
+			if (*x == 260 && *y == WINDOWS_HIGH * 3 / 4 + 90 && own_pm->s_skill[3].left_pp > 0)
 			{
 				if (*fight_choose == 1)
-					pm_attack_pm(own_pm, enemy_pm, own_pm->skill_4_name, own_pm->skill_4_damage, 
+				{
+					own_pm->s_skill[3].left_pp--;
+					pm_attack_pm(own_pm, enemy_pm, own_pm->s_skill[3].name, own_pm->s_skill[3].damage,
 								fight_choose, enemy_now_bleed);
+					*fight_turn = 0;
+					*fight_choose = 0;
+				}
 				else if (*fight_choose == 2)
 				{
 					show_fight_down_box(own_pm, "Max Potion", *fight_choose, own_pm->bleed, false);
 					*own_now_bleed = own_pm->bleed;
+					*fight_turn = 0;
+					*fight_choose = 0;
 				}
 				else if (*fight_choose == 3)
 				{
 					show_fight_down_box(own_pm, PM[2].name, *fight_choose, 0, false);
 					*own_pm = PM[2];
 					*own_now_bleed = PM[2].bleed;
+					*fight_turn = 0;
+					*fight_choose = 0;
 				}
 			}
-			//操作完轮到对方回合
-			*fight_turn = 0;
-			//每一回合都要返回准备界面
-			*fight_choose = 0;
 		}
 		if (input == 'k')	*fight_choose = 0;
 	}
@@ -1240,6 +1307,9 @@ void fight_interface(pokemon *own_pm, int *own_now_bleed, int own_bleed_width,
 
 void show_fight(pokemon *own_pm, pokemon *enemy_pm)
 {
+	//战斗切换画面
+	interface_change_animatio(WINDOWS_WIDTH, WINDOWS_HIGH);
+
 	//1为player攻击，0为地方攻击
 	int fight_turn = 1;
 	//0为战斗准备，1为进入战斗，2为使用物品，3为替换宝可梦，4为逃跑
@@ -1289,11 +1359,17 @@ void show_fight(pokemon *own_pm, pokemon *enemy_pm)
 		if (own_now_bleed <= 0)
 		{
 			outtextxy(50, WINDOWS_HIGH * 3 / 4 + 30, _T("you loss!"));
+			g_is_win = 0;
+			FlushBatchDraw();
+			Sleep(300);
 			break;
 		}
 		if (enemy_now_bleed <= 0)
 		{
 			outtextxy(50, WINDOWS_HIGH * 3 / 4 + 30, _T("winner"));
+			g_is_win = 1;
+			FlushBatchDraw();
+			Sleep(300);
 			break;
 		}
 		//准备界面
@@ -1305,16 +1381,16 @@ void show_fight(pokemon *own_pm, pokemon *enemy_pm)
 				srand(time(NULL));
 				int temp = rand() % 4 + 1;
 				if (temp == 1)
-					pm_attack_pm(enemy_pm, own_pm, enemy_pm->skill_1_name, enemy_pm->skill_1_damage, 
+					pm_attack_pm(enemy_pm, own_pm, enemy_pm->s_skill[0].name, enemy_pm->s_skill[0].damage, 
 									&fight_choose, &own_now_bleed);
 				else if (temp == 2)
-					pm_attack_pm(enemy_pm, own_pm, enemy_pm->skill_2_name, enemy_pm->skill_2_damage, 
+					pm_attack_pm(enemy_pm, own_pm, enemy_pm->s_skill[1].name, enemy_pm->s_skill[1].damage,
 									&fight_choose, &own_now_bleed);
 				else if (temp == 3)
-					pm_attack_pm(enemy_pm, own_pm, enemy_pm->skill_3_name, enemy_pm->skill_3_damage, 
+					pm_attack_pm(enemy_pm, own_pm, enemy_pm->s_skill[2].name, enemy_pm->s_skill[2].damage,
 									&fight_choose, &own_now_bleed);
 				else if (temp == 4)
-					pm_attack_pm(enemy_pm, own_pm, enemy_pm->skill_4_name, enemy_pm->skill_4_damage, 
+					pm_attack_pm(enemy_pm, own_pm, enemy_pm->s_skill[3].name, enemy_pm->s_skill[3].damage,
 									&fight_choose, &own_now_bleed);
 				//释放完技能结束敌方回合
 				fight_turn = 1;
@@ -1370,13 +1446,13 @@ void show_fight(pokemon *own_pm, pokemon *enemy_pm)
 		{
 			TCHAR show_str[4][20];
 			TCHAR pm_skill[20];
-			CharToTchar(own_pm->skill_1_name, pm_skill);
+			CharToTchar(own_pm->s_skill[0].name, pm_skill);
 			lstrcpyW(show_str[0], pm_skill);
-			CharToTchar(own_pm->skill_2_name, pm_skill);
+			CharToTchar(own_pm->s_skill[1].name, pm_skill);
 			lstrcpyW(show_str[1], pm_skill);
-			CharToTchar(own_pm->skill_3_name, pm_skill);
+			CharToTchar(own_pm->s_skill[2].name, pm_skill);
 			lstrcpyW(show_str[2], pm_skill);
-			CharToTchar(own_pm->skill_4_name, pm_skill);
+			CharToTchar(own_pm->s_skill[3].name, pm_skill);
 			lstrcpyW(show_str[3], pm_skill);
 			fight_operation_interface(&skill_x, &skill_y, &fight_choose, show_str, own_pm, enemy_pm, 
 										&fight_turn, &own_now_bleed, &enemy_now_bleed);
@@ -1407,6 +1483,8 @@ void show_fight(pokemon *own_pm, pokemon *enemy_pm)
 		}
 		FlushBatchDraw();
 	}
+	//战斗结束切换画面
+	interface_change_animatio(WINDOWS_WIDTH, WINDOWS_HIGH);
 }
 
 
@@ -1598,21 +1676,29 @@ void startup_pokemon()
 	PM[0].y = 0;
 	PM[0].number = 0;
 	strcpy(PM[0].name, "Pikachu");
-	PM[0].level = 5;
+	PM[0].level = 10;
 	PM[0].experience = 0;
-	PM[0].bleed = 10;
+	PM[0].bleed = 50;
 	PM[0].attack = 10;
 	PM[0].defence = 10;
 	PM[0].judge = 0;
 	PM[0].time = 0;
-	strcpy(PM[0].skill_1_name, "scream");
-	PM[0].skill_1_damage = 50;
-	strcpy(PM[0].skill_2_name, "catchit");
-	PM[0].skill_2_damage = 200;
-	strcpy(PM[0].skill_3_name, "lighting");
-	PM[0].skill_3_damage = 40;
-	strcpy(PM[0].skill_4_name, "flash");
-	PM[0].skill_4_damage = 70;
+	strcpy(PM[0].s_skill[0].name, "scream");
+	PM[0].s_skill[0].damage = 50;
+	PM[0].s_skill[0].init_pp = 10;
+	PM[0].s_skill[0].left_pp = 10;
+	strcpy(PM[0].s_skill[1].name, "catchit");
+	PM[0].s_skill[1].damage = 200;
+	PM[0].s_skill[1].init_pp = 5;
+	PM[0].s_skill[1].left_pp = 5;
+	strcpy(PM[0].s_skill[2].name, "lighting");
+	PM[0].s_skill[2].damage = 40;
+	PM[0].s_skill[2].init_pp = 1;
+	PM[0].s_skill[2].left_pp = 1;
+	strcpy(PM[0].s_skill[3].name, "flash");
+	PM[0].s_skill[3].damage = 70;
+	PM[0].s_skill[3].init_pp = 3;
+	PM[0].s_skill[3].left_pp = 3;
 
 
 	PM[1].x = 0;  //367
@@ -1626,14 +1712,14 @@ void startup_pokemon()
 	PM[1].defence = 5;
 	PM[1].judge = 1;
 	PM[1].time = 0;
-	strcpy(PM[1].skill_1_name, "boom");
-	PM[1].skill_1_damage = 50;
-	strcpy(PM[1].skill_2_name, "boom");
-	PM[1].skill_2_damage = 200;
-	strcpy(PM[1].skill_3_name, "boom");
-	PM[1].skill_3_damage = 40;
-	strcpy(PM[1].skill_4_name, "boom");
-	PM[1].skill_4_damage = 70;
+	strcpy(PM[1].s_skill[0].name, "boom");
+	PM[1].s_skill[0].damage = 50;
+	strcpy(PM[1].s_skill[1].name, "boom");
+	PM[1].s_skill[1].damage = 200;
+	strcpy(PM[1].s_skill[2].name, "boom");
+	PM[1].s_skill[2].damage = 40;
+	strcpy(PM[1].s_skill[3].name, "boom");
+	PM[1].s_skill[3].damage = 70;
 
 
 	PM[2].x = 0;
@@ -1647,14 +1733,14 @@ void startup_pokemon()
 	PM[2].defence = 10;
 	PM[2].judge = 1;
 	PM[2].time = 0;
-	strcpy(PM[2].skill_1_name, "boom");
-	PM[2].skill_1_damage = 50;
-	strcpy(PM[2].skill_2_name, "catchit");
-	PM[2].skill_2_damage = 100;
-	strcpy(PM[2].skill_3_name, "boom");
-	PM[2].skill_3_damage = 40;
-	strcpy(PM[2].skill_4_name, "boom");
-	PM[2].skill_4_damage = 70;
+	strcpy(PM[2].s_skill[0].name, "boom");
+	PM[2].s_skill[0].damage = 50;
+	strcpy(PM[2].s_skill[1].name, "catchit");
+	PM[2].s_skill[1].damage = 200;
+	strcpy(PM[2].s_skill[2].name, "boom");
+	PM[2].s_skill[2].damage = 40;
+	strcpy(PM[2].s_skill[3].name, "boom");
+	PM[2].s_skill[3].damage = 70;
 
 
 	PM[3].x = 0;	//700
@@ -1668,12 +1754,12 @@ void startup_pokemon()
 	PM[3].defence = 10;
 	PM[3].judge = 1;
 	PM[3].time = 0;
-	strcpy(PM[3].skill_1_name, "boom");
-	PM[3].skill_1_damage = 50;
-	strcpy(PM[3].skill_2_name, "catchit");
-	PM[3].skill_2_damage = 100;
-	strcpy(PM[3].skill_3_name, "boom");
-	PM[3].skill_3_damage = 40;
-	strcpy(PM[3].skill_4_name, "boom");
-	PM[3].skill_4_damage = 70;
+	strcpy(PM[3].s_skill[0].name, "boom");
+	PM[3].s_skill[0].damage = 50;
+	strcpy(PM[3].s_skill[1].name, "catchit");
+	PM[3].s_skill[1].damage = 200;
+	strcpy(PM[3].s_skill[2].name, "boom");
+	PM[3].s_skill[2].damage = 40;
+	strcpy(PM[3].s_skill[3].name, "boom");
+	PM[3].s_skill[3].damage = 70;
 }
