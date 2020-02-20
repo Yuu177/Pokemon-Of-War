@@ -78,18 +78,14 @@ int g_npc_dorm_y;
 //枚举地图类型
 enum Map { SCHOOL, DORM, SEC_OFFICE, OFFICE, SHOP, HOSPITAL, BURROW };
 
-/*
-struct player
+
+//物品名字
+struct good
 {
-	//携带的物品
-	int Potion;
-	int Super_Potion;
-	int Hyper_Potion;
-	int Max_Potion;
-	//携带的宝可梦
-	struct pokemon pokemons[4];
-}struct_player;
-*/
+	char name[20];
+	int left;
+	int add;
+};
 
 struct Npc
 {
@@ -127,6 +123,16 @@ struct pokemon
 
 
 
+struct player
+{
+	//携带的物品
+	struct good s_good[4];
+	//携带的宝可梦
+	struct pokemon s_pokemons[4];
+}struct_player;
+
+
+
 
 ///////////////函数声明//////////////////
 void starup_map_and_player();
@@ -148,6 +154,8 @@ void load_pokemon_picture(pokemon *, int, int);
 void pokemons_refresh();
 void show_fight_right_box(int, int, int, pokemon *);
 void start_menu();
+void startup_player();
+
 
 //地图
 void judge_into_map();
@@ -169,6 +177,28 @@ void plot_5();
 void plot_6();
 void plot_7();
 void npc1_talk();
+
+
+
+
+void startup_player()
+{
+	strcpy(struct_player.s_good[0].name, "Potion");
+	struct_player.s_good[0].left = 4;
+	struct_player.s_good[0].add = 10;
+
+	strcpy(struct_player.s_good[1].name, "Super_Potion");
+	struct_player.s_good[1].left = 2;
+	struct_player.s_good[1].add = 20;
+
+	strcpy(struct_player.s_good[2].name, "Hyper_Potion");
+	struct_player.s_good[2].left = 5;
+	struct_player.s_good[2].add = 30;
+
+	strcpy(struct_player.s_good[3].name, "Max_Potion");
+	struct_player.s_good[3].left = 1;
+	struct_player.s_good[3].add = 50;
+}
 
 
 
@@ -993,21 +1023,37 @@ void show_fight_right_box(int x, int y, int fight_choose, pokemon *pm)
 		outtextxy(WINDOWS_WIDTH * 3 / 5 + 200, WINDOWS_HIGH * 3 / 4 + 30, w_left_pp);
 		outtextxy(WINDOWS_WIDTH * 3 / 5 + 200, WINDOWS_HIGH * 3 / 4 + 80, damage);
 	}
+
 	else if (fight_choose == 2)
 	{
 		outtextxy(WINDOWS_WIDTH * 3 / 5 + 40, WINDOWS_HIGH * 3 / 4 + 30, _T("剩余:"));
 		outtextxy(WINDOWS_WIDTH * 3 / 5 + 40, WINDOWS_HIGH * 3 / 4 + 80, _T("回复量:"));
-		TCHAR bleed[10];
+		TCHAR w_add[10];
+		TCHAR w_left[10];
 		if (x == 60 && y == WINDOWS_HIGH * 3 / 4 + 30)
-			lstrcpy(bleed, _T("10"));
+		{
+			wsprintf(w_left, _T("%d"), struct_player.s_good[0].left);
+			wsprintf(w_add, _T("%d"), struct_player.s_good[0].add);
+		}
 		if (x == 260 && y == WINDOWS_HIGH * 3 / 4 + 30)
-			lstrcpy(bleed, _T("20"));
+		{
+			wsprintf(w_left, _T("%d"), struct_player.s_good[1].left);
+			wsprintf(w_add, _T("%d"), struct_player.s_good[1].add);
+		}
 		if (x == 60 && y == WINDOWS_HIGH * 3 / 4 + 90)
-			lstrcpy(bleed, _T("30"));
+		{
+			wsprintf(w_left, _T("%d"), struct_player.s_good[2].left);
+			wsprintf(w_add, _T("%d"), struct_player.s_good[2].add);
+		}
 		if (x == 260 && y == WINDOWS_HIGH * 3 / 4 + 90)
-			lstrcpy(bleed, _T("全回复"));
-		outtextxy(WINDOWS_WIDTH * 3 / 5 + 200, WINDOWS_HIGH * 3 / 4 + 80, bleed);
+		{
+			wsprintf(w_left, _T("%d"), struct_player.s_good[3].left);
+			wsprintf(w_add, _T("%d"), struct_player.s_good[3].add);
+		}
+		outtextxy(WINDOWS_WIDTH * 3 / 5 + 200, WINDOWS_HIGH * 3 / 4 + 30, w_left);
+		outtextxy(WINDOWS_WIDTH * 3 / 5 + 200, WINDOWS_HIGH * 3 / 4 + 80, w_add);
 	}
+
 	else if (fight_choose == 3)
 	{
 		outtextxy(WINDOWS_WIDTH * 3 / 5 + 40, WINDOWS_HIGH * 3 / 4 + 30, _T("生命值:"));
@@ -1068,11 +1114,13 @@ void fight_operation_interface(int *x, int *y, int *fight_choose, TCHAR show_str
 					*fight_choose = 0;
 				}
 					
-				else if (*fight_choose == 2)
+				else if (*fight_choose == 2 && struct_player.s_good[0].left > 0)
 				{
 					//使用了xx，xx回复了xx点生命
-					show_fight_down_box(own_pm, "Potion", *fight_choose, 10, false);
-					*own_now_bleed += 10;
+					show_fight_down_box(own_pm, struct_player.s_good[0].name, 
+										*fight_choose, struct_player.s_good[0].add, false);
+					*own_now_bleed += struct_player.s_good[0].add;
+					struct_player.s_good[0].left--;
 					*fight_turn = 0;
 					*fight_choose = 0;
 				}
@@ -1086,9 +1134,9 @@ void fight_operation_interface(int *x, int *y, int *fight_choose, TCHAR show_str
 				}
 			}
 
-			if (*x == 260 && *y == WINDOWS_HIGH * 3 / 4 + 30 && own_pm->s_skill[1].left_pp > 0)
+			if (*x == 260 && *y == WINDOWS_HIGH * 3 / 4 + 30)
 			{
-				if (*fight_choose == 1)
+				if (*fight_choose == 1 && own_pm->s_skill[1].left_pp > 0)
 				{
 					own_pm->s_skill[1].left_pp--;
 					pm_attack_pm(own_pm, enemy_pm, own_pm->s_skill[1].name, own_pm->s_skill[1].damage,
@@ -1097,10 +1145,12 @@ void fight_operation_interface(int *x, int *y, int *fight_choose, TCHAR show_str
 					*fight_choose = 0;
 				}
 					
-				else if	(*fight_choose == 2)
+				else if	(*fight_choose == 2 && struct_player.s_good[1].left > 0)
 				{
-					show_fight_down_box(own_pm, "Super Potion", *fight_choose, 20, false);
-					*own_now_bleed += 20;
+					show_fight_down_box(own_pm, struct_player.s_good[1].name,
+										*fight_choose, struct_player.s_good[1].add, false);
+					*own_now_bleed += struct_player.s_good[1].add;
+					struct_player.s_good[1].left--;
 					*fight_turn = 0;
 					*fight_choose = 0;
 				}
@@ -1114,9 +1164,9 @@ void fight_operation_interface(int *x, int *y, int *fight_choose, TCHAR show_str
 				}
 			}
 
-			if (*x == 60 && *y == WINDOWS_HIGH * 3 / 4 + 90 && own_pm->s_skill[2].left_pp > 0)
+			if (*x == 60 && *y == WINDOWS_HIGH * 3 / 4 + 90)
 			{
-				if (*fight_choose == 1)
+				if (*fight_choose == 1 && own_pm->s_skill[2].left_pp > 0)
 				{
 					own_pm->s_skill[2].left_pp--;
 					pm_attack_pm(own_pm, enemy_pm, own_pm->s_skill[2].name, own_pm->s_skill[2].damage,
@@ -1124,10 +1174,12 @@ void fight_operation_interface(int *x, int *y, int *fight_choose, TCHAR show_str
 					*fight_turn = 0;
 					*fight_choose = 0;
 				}
-				else if (*fight_choose == 2)
+				else if (*fight_choose == 2 && struct_player.s_good[2].left > 0)
 				{
-					show_fight_down_box(own_pm, "Hyper Potion", *fight_choose, 30, false);
-					*own_now_bleed += 30;
+					show_fight_down_box(own_pm, struct_player.s_good[2].name,
+										*fight_choose, struct_player.s_good[2].add, false);
+					*own_now_bleed += struct_player.s_good[2].add;
+					struct_player.s_good[2].left--;
 					*fight_turn = 0;
 					*fight_choose = 0;
 				}
@@ -1141,9 +1193,9 @@ void fight_operation_interface(int *x, int *y, int *fight_choose, TCHAR show_str
 				}
 			}
 
-			if (*x == 260 && *y == WINDOWS_HIGH * 3 / 4 + 90 && own_pm->s_skill[3].left_pp > 0)
+			if (*x == 260 && *y == WINDOWS_HIGH * 3 / 4 + 90)
 			{
-				if (*fight_choose == 1)
+				if (*fight_choose == 1 && own_pm->s_skill[3].left_pp > 0)
 				{
 					own_pm->s_skill[3].left_pp--;
 					pm_attack_pm(own_pm, enemy_pm, own_pm->s_skill[3].name, own_pm->s_skill[3].damage,
@@ -1151,10 +1203,12 @@ void fight_operation_interface(int *x, int *y, int *fight_choose, TCHAR show_str
 					*fight_turn = 0;
 					*fight_choose = 0;
 				}
-				else if (*fight_choose == 2)
+				else if (*fight_choose == 2 && struct_player.s_good[3].left > 0)
 				{
-					show_fight_down_box(own_pm, "Max Potion", *fight_choose, own_pm->bleed, false);
-					*own_now_bleed = own_pm->bleed;
+					show_fight_down_box(own_pm, struct_player.s_good[3].name,
+										*fight_choose, struct_player.s_good[3].add, false);
+					*own_now_bleed += struct_player.s_good[3].add;
+					struct_player.s_good[3].left--;
 					*fight_turn = 0;
 					*fight_choose = 0;
 				}
@@ -1652,8 +1706,10 @@ void gameover()
 
 int main(void)
 {
+	startup_player();
 	startup_npc();
 	startup_pokemon();
+
 	starup_map_and_player();
 	//需要先初始化窗口才能够对背景，字体等操作
 	start_menu();
