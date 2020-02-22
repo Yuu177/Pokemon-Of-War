@@ -203,6 +203,28 @@ void plot_5();
 void plot_6();
 void plot_7();
 
+void npc_drom_talk1();
+void npc_zhang_talk1();
+void npc_zhang_talk2();
+void npc_burrow_talk1();
+void npc_burrow_talk2();
+void npc_shop_talk1();
+void npc_shop_talk2();
+void npc_office_talk1();
+void npc_office_talk2();
+void npc_sec_office_talk1();
+void npc_sec_office_talk2();
+void npc_green_takl1();
+void npc_green_takl2();
+void npc_green_takl3();
+void npc_hospital_talk1();
+void npc_kk_talk1();
+
+
+
+
+
+
 
 
 void recovery_pp()
