@@ -4,13 +4,14 @@
 *	编译环境：vc2017 + EasyX_20200109(beta)
 *	Maker：	  panyu.tan
 *	最初版本：2020/2/7
-*	最后修改：2020/2/20
+*	最后修改：2020/2/22
 *******************************************/
 
 #include <graphics.h>
 #include <conio.h>
 #include <time.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include "tools.h"
 #include "pokemon_skills.h"
 
@@ -79,7 +80,7 @@ int g_npc_dorm_y;
 enum Map { SCHOOL, DORM, SEC_OFFICE, OFFICE, SHOP, HOSPITAL, BURROW };
 
 
-//物品名字
+//物品
 struct good
 {
 	char name[20];
@@ -141,6 +142,7 @@ struct player
 void starup_map_and_player_position();
 void show_map();
 void gameover();
+void keyboard_operation();
 void transparentimage(IMAGE *, int, int, IMAGE *, UINT);	//指定透明色贴图
 void interface_change_animatio(int, int);
 void is_fight();
@@ -164,21 +166,26 @@ void goods_details(int, int);
 void pokemons_details(int, int);
 void start_menu();
 void startup_player();
-void pokemon_operation(pokemon *, int *, pokemon *, int *, int *);
-void pp_good_operatiom(pokemon *, struct good *, int *, int *);
-void bleed_good_operation(pokemon *, int *, struct good *, int *, int *);
-void skill_operation(pokemon *, pokemon *, int *, struct skill *, int *, int *);
+void pokemon_operate(pokemon *, int *, pokemon *, int *, int *);
+void pp_good_operate(pokemon *, struct good *, int *, int *);
+void bleed_good_operate(pokemon *, int *, struct good *, int *, int *);
+void skill_operate(pokemon *, pokemon *, int *, struct skill *, int *, int *);
 void miss_enemy_words(pokemon *);
 void enemy_fight_turn(pokemon *, pokemon *, int *, int *);
 void own_fight_turn(int *, int *, int *, int *);
-int calculate_bleed(int *, pokemon *, int);
+int  calculate_bleed(int *, pokemon *, int);
+void recovery_pp();
 
+
+//读档和存档的函数
+void readRecordFile();
+void writeRecordFile();
 
 
 //地图
 void judge_into_map();
 void into_map(int, int, int, int, TCHAR * ,int (*)[600], int, int, int, int, TCHAR *, enum Map e_map);
-void into_map_operate(int(*)[600], int *, int *, int, int, int, int, enum Map e_map);
+void into_map_keyboard_operation(int(*)[600], int *, int *, int, int, int, int, enum Map e_map);
 void dorm_map();
 void hospital_map();
 void office_map();
@@ -195,7 +202,62 @@ void plot_4();
 void plot_5();
 void plot_6();
 void plot_7();
-void npc1_talk();
+
+
+
+void recovery_pp()
+{
+	for (int i = 0; i < POKEMON_NUMBER; i++)
+		PM[i].s_skill->left_pp = PM[i].s_skill->init_pp;
+}
+
+
+
+
+void readRecordFile()
+{
+	FILE *fp;
+	fp = fopen("资源文件\\gamedata.dat", "r");
+	if (fp != NULL)
+	{
+		fscanf(fp, "%d %d %d %d %d %d %d %d %d %d %d",
+			&g_map_x, &g_map_y, &g_player_x, &g_player_y, &g_player_picture_i, &g_player_picture_j, &g_plot,
+			&struct_player.s_good[0].left, &struct_player.s_good[1].left,
+			&struct_player.s_good[2].left, &struct_player.s_good[3].left);
+	}
+	else
+	{
+		fclose(fp);
+		HWND wnd = GetHWnd();
+		MessageBox(wnd, _T("无法找到存档"), _T("警告"), MB_OK | MB_ICONWARNING);
+		exit(1);
+	}
+	fclose(fp);
+}
+
+
+
+
+void writeRecordFile()
+{
+	FILE *fp;
+	fp = fopen("资源文件\\gamedata.dat", "w");
+	if (fp != NULL)
+	{
+		fprintf(fp, "%d %d %d %d %d %d %d %d %d %d %d",
+			g_map_x, g_map_y, g_player_x, g_player_y, g_player_picture_i, g_player_picture_j, g_plot,
+			struct_player.s_good[0].left, struct_player.s_good[1].left,
+			struct_player.s_good[2].left, struct_player.s_good[3].left);
+	}
+	else
+	{
+		fclose(fp);
+		HWND wnd = GetHWnd();
+		MessageBox(wnd, _T("存档失败"), _T("警告"), MB_OK | MB_ICONWARNING);
+		exit(1);
+	}
+	fclose(fp);
+}
 
 
 
@@ -294,34 +356,151 @@ void startup_npc()
 
 
 
-void npc1_talk()
+void npc_drom_talk1()
 {
-	show_dialog_box_words(_T("npc1:"), _T("wai？"), _T("are u good？"));
+	show_dialog_box_words(_T("室友A:"), _T("歪比歪比？歪比巴布"), _T("are u good 马拉西亚？"));
+	show_dialog_box_words(_T("室友A:"), _T("怎么上交论文吗？"), _T("打印好纸质版，然后去上交给教务秘书就行"));
 }
+
+
+void npc_zhang_talk1()
+{
+	show_dialog_box_words(_T("小张:"), _T("你找到你的u盘了？"), _T("太好了！"));
+}
+
+void npc_zhang_talk2()
+{
+	show_dialog_box_words(_T("小张:"), _T("今天天气不错"), _T("不是吗"));
+}
+
+
+void npc_burrow_talk1()
+{
+	show_dialog_box_words(_T("失误招领处大爷:"), _T("拿了快滚"), _T("别让我看见你"));
+}
+
+void npc_burrow_talk2()
+{
+	show_dialog_box_words(_T("？？？:"), _T("歪比歪比？歪比巴布"), _T("are u good 马拉西亚？"));
+}
+
+void npc_shop_talk1()
+{
+	show_dialog_box_words(_T("打印店老板:"), _T("好汉饶命，我再也不敢了"), _T("下次请你吃饭"));
+
+}
+void npc_shop_talk2()
+{
+	show_dialog_box_words(_T("打印店老板:"), _T("需要打印吗？"), _T("把你的u盘给我吧"));
+
+}
+
+void npc_office_talk1()
+{
+	show_dialog_box_words(_T("导员:"), _T("快去见教务秘书吧"), _T("小心点"));
+}
+
+void npc_office_talk2()
+{
+	show_dialog_box_words(_T("导员:"), _T("一个假期不见"), _T("你又长胖了"));
+}
+
+
+void npc_sec_office_talk1()
+{
+	show_dialog_box_words(_T("教务秘书:"), _T("...算你厉害"), _T("成功上交论文（求饶）"));
+}
+
+void npc_sec_office_talk2()
+{
+	show_dialog_box_words(_T("教务秘书:"), _T("同学你好"), _T("有什么需要帮助的？"));
+}
+
+
+void npc_green_takl1()
+{
+	show_dialog_box_words(_T("green girl:"), _T("欢迎来到战争里的口袋妈妈"), _T("my master is panyu.tan"));
+	show_dialog_box_words(_T("green girl:"), _T("如果你有什么不懂的操作可以和我对话"), _T("也可以来找我聊天"));
+	show_dialog_box_words(_T("green girl:"), _T("反正我也帮不了你"), _T("祝你好运！"));
+}
+
+void npc_green_takl2()
+{
+	show_dialog_box_words(_T("green girl:"), _T("什么？你喜欢我"), _T("对不起，我有男朋友了"));
+	show_dialog_box_words(_T("green girl:"), _T("但是......"), _T("我不介意多一个"));
+}
+
+void npc_green_takl3()
+{
+	SYSTEMTIME time;
+	GetLocalTime(&time);
+	TCHAR w_year[50], w_mon[10], w_day[10], w_hour[10], w_min[10];
+	wsprintf(w_year, _T("%d"), time.wYear);
+	wsprintf(w_mon,  _T("%d"), time.wMonth);
+	wsprintf(w_day,  _T("%d"), time.wDay);
+	wsprintf(w_hour, _T("%d"), time.wHour);
+	wsprintf(w_min,  _T("%d"), time.wMinute); 
+	lstrcatW(w_year, _T("年"));
+	lstrcatW(w_year, w_mon);
+	lstrcatW(w_year, _T("月"));
+	lstrcatW(w_year, w_day);
+	lstrcatW(w_year, _T("日"));
+	lstrcatW(w_year, w_hour);
+	lstrcatW(w_year, _T("时"));
+	lstrcatW(w_year, w_min);
+	lstrcatW(w_year, _T("分"));
+
+	show_dialog_box_words(_T("green girl:"), _T("你知道吗"), _T("这个游戏的最初版本时间是2020年2月7日"));
+	show_dialog_box_words(_T("green girl:"), _T("最后修改是2020年2月22日"), _T("时间真快"));
+	show_dialog_box_words(_T("green girl:"), _T("而现在是"), w_year);
+}
+
+
+void npc_hospital_talk1()
+{
+	show_dialog_box_words(_T("医生姐姐:"), _T("这里是医院"), _T("有什么需要帮助？"));
+	show_dialog_box_words(_T("医生姐姐:"), _T("......"), _T("需要恢复宝可梦状态？"));
+	show_dialog_box_words(_T("医生姐姐:"), _T("交给我吧......"), _T("恢复了全部宝可梦的技能点！"));
+	recovery_pp();
+}
+
+
+void npc_kk_talk1()
+{
+	show_dialog_box_words(_T("卡卡西:"), _T("可恶"), _T("被你发现存档点了"));
+	writeRecordFile();
+	show_dialog_box_words(_T("卡卡西:"), _T("正在存档，请稍后......"), _T("存档成功！"));
+}
+
+
 
 
 
 void plot_1()
 {
-	show_dialog_box_words(_T("npc1:"), _T("hey，你需要去找你的u盘？"), _T("那去校园路上问问别人吧！"));
+	show_dialog_box_words(_T("室友A:"), _T("你保存有论文的u盘丢了？"), _T("坏起来了..."));
+	show_dialog_box_words(_T("室友A:"), _T("......"), _T("那去校园路上问问别人有没有捡到吧"));
 }
 
 
 void plot_2()
 {
-	show_dialog_box_words(_T("小张:"), _T("......"), _T("......"));
-	show_dialog_box_words(_T("小张:"), _T("什么？你的u盘丢了？"), _T("那你没了"));
-	show_dialog_box_words(_T("小张:"), _T("我听说在山洞里，你去看看"), _T("路上小心！"));
+	show_dialog_box_words(_T("小张:"), _T("什么？你的u盘丢了？"), _T("你也太不小心了"));
+	show_dialog_box_words(_T("小张:"), _T("你去失误招领处看看"), _T("说不定有人捡到放在那里了"));
+	show_dialog_box_words(_T("小张:"), _T("失误招领在哪里吗？"), _T("你上了四年学居然不知道......"));
+	show_dialog_box_words(_T("小张:"), _T("在山洞里！"), _T("路上小心！"));
 }
 
 void plot_3()
 {
-	show_dialog_box_words(_T("怪物:"), _T("sb"), _T("给爷爬"));
+	show_dialog_box_words(_T("失误招领处大爷:"), _T("u盘？噢，好像今天有人捡到了放在这里"), _T("但是你怎么证明这是你的？"));
+	show_dialog_box_words(_T("失误招领处大爷:"), _T("......"), _T("有本事你可以从我手里抢过去"));
 }
 
 void plot_4()
 {
-	show_dialog_box_words(_T("打印店老板:"), _T("1000rbm"), _T("要么给钱，要么给命！"));
+	show_dialog_box_words(_T("打印店老板:"), _T("小可爱你需要打印论文是吗？"), _T("ok，交给我吧"));
+	show_dialog_box_words(_T("打印店老板:"), _T("先交1000RMB"), _T("什么？你没钱你也敢来打印？"));
 }
 
 void plot_5()
@@ -336,7 +515,10 @@ void plot_6()
 
 void plot_7()
 {
-	show_dialog_box_words(_T("教务秘书:"), _T("想要交论文？？？"), _T("那先从我的尸体走过去"));
+	show_dialog_box_words(_T("教务秘书:"), _T("“山有木兮木有枝...”"), _T("......"));
+	show_dialog_box_words(_T("教务秘书:"), _T("没看到我正在和我男朋友打电话吗？"), _T("你不用毕业了，收拾一下回家吧"));
+	show_dialog_box_words(_T("教务秘书:"), _T("想要交论文？？？"), _T("那我有空的时候怎么不来"));
+	show_dialog_box_words(_T("教务秘书:"), _T("还敢顶嘴"), _T("敬酒不喝喝罚酒"));
 }
 
 
@@ -357,18 +539,20 @@ void judge_plot_and_talk(int player_x ,int player_y, enum Map e_map)
 					plot_1();
 				}
 				else
-					npc1_talk();
+					npc_drom_talk1();
 			}
 
 			else if (NPC[i].x == g_npc_zhang_x && NPC[i].y == g_npc_zhang_y)
 			{
-				if (g_plot >=1 && g_plot <=2)
+				if (g_plot >= 1 && g_plot <= 2)
 				{
 					g_plot = 2;
 					plot_2();
 				}
+				else if (g_plot >= 4)
+					npc_zhang_talk2();
 				else
-					show_dialog_box_words(_T("小张:"), _T("今天天气不错"), _T("不是吗？"));
+					npc_zhang_talk1();
 			}
 
 			else if (NPC[i].x == g_npc_burrow_x && NPC[i].y == g_npc_burrow_y)
@@ -382,9 +566,9 @@ void judge_plot_and_talk(int player_x ,int player_y, enum Map e_map)
 						g_plot = 3;
 				}
 				else if (g_plot >= 3)
-					show_dialog_box_words(_T("怪物:"), _T("拿了快滚"), _T("别让我见到你？"));
+					npc_burrow_talk1();
 				else
-					show_dialog_box_words(_T("怪物:"), _T("......"), _T("......？"));
+					npc_burrow_talk2();
 			}
 
 			else if (NPC[i].x == g_npc_shop_x && NPC[i].y == g_npc_shop_y)
@@ -394,13 +578,13 @@ void judge_plot_and_talk(int player_x ,int player_y, enum Map e_map)
 					plot_4();
 					pokemon own_pm = struct_player.s_pokemons[0];
 					show_fight(&own_pm, &PM[3]);	//触发剧情，进入战斗
-					if (g_is_win == 1)	
+					if (g_is_win == 1)
 						g_plot = 4;
 				}
 				else if (g_plot >= 4)
-					show_dialog_box_words(_T("打印店老板:"), _T("小子下次你死定了"), _T("。。。。"));
+					npc_shop_talk1();
 				else
-					show_dialog_box_words(_T("打印店老板:"), _T("。。。"), _T("。。。。"));
+					npc_shop_talk2();
 			}
 
 			else if (NPC[i].x == g_npc_office_x && NPC[i].y == g_npc_office_y)
@@ -411,9 +595,9 @@ void judge_plot_and_talk(int player_x ,int player_y, enum Map e_map)
 					plot_6();
 				}
 				else if (g_plot >= 5)
-					show_dialog_box_words(_T("导员:"), _T("快去见教务秘书吧"), _T("小心点"));
+					npc_office_talk1();
 				else
-					show_dialog_box_words(_T("导员:"), _T("近来可好"), _T("。。。。"));
+					npc_office_talk2();
 			}
 
 			else if (NPC[i].x == g_npc_sec_office_x && NPC[i].y == g_npc_sec_office_y)
@@ -432,23 +616,29 @@ void judge_plot_and_talk(int player_x ,int player_y, enum Map e_map)
 						g_plot = 7;
 				}
 				else if (g_plot >= 7)
-				{
-					show_dialog_box_words(_T("教务秘书:"), _T("成功上交论文"), _T("游戏结束"));
-				}
+					npc_sec_office_talk1();
 				else
-					show_dialog_box_words(_T("教务秘书:"), _T("。。。"), _T("。。。。"));
+					npc_sec_office_talk2();
 			}
 
 			else if (NPC[i].x == g_npc_green_x && NPC[i].y == g_npc_green_y)
 			{
-				show_dialog_box_words(_T("green girl:"), _T("欢迎来到战争里的口袋妈妈"), _T("my name is green"));
-				show_dialog_box_words(_T("green girl:"), _T("如果你有什么不懂的操作可以和我对话"), _T("。。。"));
-				show_dialog_box_words(_T("green girl:"), _T("反正我也帮不了你"), _T("祝你好运！"));
+				if (g_plot == 0)
+					npc_green_takl1();
+				else if (g_plot == 1)
+					npc_green_takl2();
+				else if (g_plot > 1)
+					npc_green_takl3();
 			}
 
 			else if (NPC[i].x == g_npc_hospital_x && NPC[i].y == g_npc_hospital_y)
 			{
-				show_dialog_box_words(_T("hospital girl:"), _T("这里是医院"), _T("有什么需要帮助？"));
+				npc_hospital_talk1();
+			}
+
+			else if (NPC[i].x == g_npc_kk_x && NPC[i].y == g_npc_kk_y)
+			{
+			npc_kk_talk1();
 			}
 		}
 	}
@@ -647,7 +837,9 @@ void dorm_map()
 
 
 
-void into_map_operate(int(*canvas)[600], int *player_x, int *player_y, int down_border,int left_border, 
+
+
+void into_map_keyboard_operation(int(*canvas)[600], int *player_x, int *player_y, int down_border,int left_border,
 						int right_border, int top_border, enum Map e_map)
 {
 	int step = 10;
@@ -710,6 +902,9 @@ void into_map_operate(int(*canvas)[600], int *player_x, int *player_y, int down_
 
 
 
+
+
+
 //地图没有加黑色背景时高340
 void into_map(int p_x, int p_y, int out_x, int out_y, TCHAR *map_path, int(*canvas)[600], int down_border, 
 				int left_border, int right_border, int top_border ,  TCHAR *npc_path, enum Map e_map)
@@ -747,7 +942,7 @@ void into_map(int p_x, int p_y, int out_x, int out_y, TCHAR *map_path, int(*canv
 			srcDC, srcX, srcY, PLAYER_WIDTH, PLAYER_HIGH, RGB(29, 248, 6));
 		FlushBatchDraw();
 
-		into_map_operate(canvas, &player_x, &player_y, down_border, left_border, right_border, top_border, e_map);
+		into_map_keyboard_operation(canvas, &player_x, &player_y, down_border, left_border, right_border, top_border, e_map);
 
 		if (player_x > out_x && player_x < out_x + 50 && player_y >= out_y && g_player_picture_j == 0)
 		{
@@ -793,7 +988,11 @@ void start_menu()
 			if (input == 'j')
 			{
 				if (y == 205)	g_game_state = 1;
-				if (y == 255)	g_game_state = 2;
+				if (y == 255)
+				{
+					readRecordFile();
+					g_game_state = 1;
+				}
 				if (y == 305)	g_game_state = 3;
 				//1.exit(1)表示异常退出, 在退出前可以给出一些提示信息或在调试程序中察看出错原因。
 				//2.exit(0)表示正常退出。
@@ -802,6 +1001,7 @@ void start_menu()
 		}
 	}
 }
+
 
 
 
@@ -1215,7 +1415,7 @@ void pokemons_details(int x, int y)
 
 
 
-void skill_operation(pokemon *own_pm, pokemon *enemy_pm, int *enemy_now_bleed,
+void skill_operate(pokemon *own_pm, pokemon *enemy_pm, int *enemy_now_bleed,
 						struct skill *s_skill, int *fight_turn, int *fight_choose)
 {
 	if (s_skill->left_pp > 0)
@@ -1230,7 +1430,7 @@ void skill_operation(pokemon *own_pm, pokemon *enemy_pm, int *enemy_now_bleed,
 
 
 
-void bleed_good_operation(pokemon *own_pm,int *own_now_bleed, struct good *s_good,int *fight_turn, int *fight_choose)
+void bleed_good_operate(pokemon *own_pm,int *own_now_bleed, struct good *s_good,int *fight_turn, int *fight_choose)
 {
 	if (s_good->left > 0)
 	{
@@ -1245,7 +1445,7 @@ void bleed_good_operation(pokemon *own_pm,int *own_now_bleed, struct good *s_goo
 
 
 
-void pp_good_operatiom(pokemon *own_pm, struct good *s_good, int *fight_turn, int *fight_choose)
+void pp_good_operate(pokemon *own_pm, struct good *s_good, int *fight_turn, int *fight_choose)
 {
 	if (s_good->left > 0)
 	{
@@ -1263,7 +1463,7 @@ void pp_good_operatiom(pokemon *own_pm, struct good *s_good, int *fight_turn, in
 }
 
 
-void pokemon_operation(pokemon *own_pm, int *own_now_bleed, pokemon *change_pm, int *fight_turn, int *fight_choose)
+void pokemon_operate(pokemon *own_pm, int *own_now_bleed, pokemon *change_pm, int *fight_turn, int *fight_choose)
 {
 	if (change_pm->is_own == 1 && change_pm->is_change == 1)
 	{
@@ -1311,7 +1511,7 @@ void fight_operation_interface(int *x, int *y, int *fight_choose, TCHAR show_str
 			{
 				if (*fight_choose == 1)	//判断pp剩余时候才能使用技能 && own_pm->s_skill[0].left_pp > 0
 				{
-					skill_operation(own_pm, enemy_pm, enemy_now_bleed, &own_pm->s_skill[0], fight_turn, fight_choose);
+					skill_operate(own_pm, enemy_pm, enemy_now_bleed, &own_pm->s_skill[0], fight_turn, fight_choose);
 					
 					//own_pm->s_skill[0].left_pp--;
 					//pm_attack_pm(own_pm, enemy_pm, own_pm->s_skill[0].name, own_pm->s_skill[0].damage, enemy_now_bleed);
@@ -1324,7 +1524,7 @@ void fight_operation_interface(int *x, int *y, int *fight_choose, TCHAR show_str
 				else if (*fight_choose == 2) //&& struct_player.s_good[0].left > 0
 				{
 					//使用了xx，xx回复了xx点生命
-					bleed_good_operation(own_pm, own_now_bleed, &struct_player.s_good[0], fight_turn, fight_choose);
+					bleed_good_operate(own_pm, own_now_bleed, &struct_player.s_good[0], fight_turn, fight_choose);
 					//show_use_good_words(own_pm->name, struct_player.s_good[0].name, struct_player.s_good[0].add, "生命值");
 					//*own_now_bleed += struct_player.s_good[0].add;
 					//struct_player.s_good[0].left--;
@@ -1334,7 +1534,7 @@ void fight_operation_interface(int *x, int *y, int *fight_choose, TCHAR show_str
 				}
 				else if (*fight_choose == 3)//&& struct_player.s_pokemons[0].is_own == 1 && struct_player.s_pokemons[0].is_change == 1
 				{
-					pokemon_operation(own_pm, own_now_bleed, &struct_player.s_pokemons[0], fight_turn, fight_choose);
+					pokemon_operate(own_pm, own_now_bleed, &struct_player.s_pokemons[0], fight_turn, fight_choose);
 					/*show_change_pokemon_words(own_pm->name, struct_player.s_pokemons[0].name);
 					struct_player.s_pokemons[0].is_change = 0; //交换完宝可梦，该宝可梦的is_change设置为0
 					*own_pm = struct_player.s_pokemons[0];
@@ -1349,7 +1549,7 @@ void fight_operation_interface(int *x, int *y, int *fight_choose, TCHAR show_str
 			{
 				if (*fight_choose == 1)// && own_pm->s_skill[1].left_pp > 0
 				{
-					skill_operation(own_pm, enemy_pm, enemy_now_bleed, &own_pm->s_skill[1], fight_turn, fight_choose);
+					skill_operate(own_pm, enemy_pm, enemy_now_bleed, &own_pm->s_skill[1], fight_turn, fight_choose);
 					//own_pm->s_skill[1].left_pp--;
 					//pm_attack_pm(own_pm, enemy_pm, own_pm->s_skill[1].name, own_pm->s_skill[1].damage, enemy_now_bleed);
 					//*fight_turn = 0;
@@ -1359,7 +1559,7 @@ void fight_operation_interface(int *x, int *y, int *fight_choose, TCHAR show_str
 					
 				else if	(*fight_choose == 2)// && struct_player.s_good[1].left > 0
 				{
-					bleed_good_operation(own_pm, own_now_bleed, &struct_player.s_good[1], fight_turn, fight_choose);
+					bleed_good_operate(own_pm, own_now_bleed, &struct_player.s_good[1], fight_turn, fight_choose);
 					//show_use_good_words(own_pm->name, struct_player.s_good[1].name, struct_player.s_good[1].add, "生命值");
 					//*own_now_bleed += struct_player.s_good[1].add;
 					//struct_player.s_good[1].left--;
@@ -1369,7 +1569,7 @@ void fight_operation_interface(int *x, int *y, int *fight_choose, TCHAR show_str
 				}
 				else if (*fight_choose == 3)//&& struct_player.s_pokemons[1].is_own == 1 && struct_player.s_pokemons[1].is_change == 1
 				{
-					pokemon_operation(own_pm, own_now_bleed, &struct_player.s_pokemons[1], fight_turn, fight_choose);
+					pokemon_operate(own_pm, own_now_bleed, &struct_player.s_pokemons[1], fight_turn, fight_choose);
 					/*show_change_pokemon_words(own_pm->name, struct_player.s_pokemons[1].name);
 					struct_player.s_pokemons[1].is_change = 0; //交换完宝可梦，该宝可梦的is_change设置为0
 					*own_pm = struct_player.s_pokemons[1];
@@ -1384,7 +1584,7 @@ void fight_operation_interface(int *x, int *y, int *fight_choose, TCHAR show_str
 			{
 				if (*fight_choose == 1)// && own_pm->s_skill[2].left_pp > 0
 				{
-					skill_operation(own_pm, enemy_pm, enemy_now_bleed, &own_pm->s_skill[2], fight_turn, fight_choose);
+					skill_operate(own_pm, enemy_pm, enemy_now_bleed, &own_pm->s_skill[2], fight_turn, fight_choose);
 					//own_pm->s_skill[2].left_pp--;
 					//pm_attack_pm(own_pm, enemy_pm, own_pm->s_skill[2].name, own_pm->s_skill[2].damage, enemy_now_bleed);
 					//*fight_turn = 0;
@@ -1393,7 +1593,7 @@ void fight_operation_interface(int *x, int *y, int *fight_choose, TCHAR show_str
 				}
 				else if (*fight_choose == 2)// && struct_player.s_good[2].left > 0
 				{
-					bleed_good_operation(own_pm, own_now_bleed, &struct_player.s_good[2], fight_turn, fight_choose);
+					bleed_good_operate(own_pm, own_now_bleed, &struct_player.s_good[2], fight_turn, fight_choose);
 					/*show_use_good_words(own_pm->name, struct_player.s_good[2].name, struct_player.s_good[2].add, "生命值");
 					*own_now_bleed += struct_player.s_good[2].add;
 					struct_player.s_good[2].left--;
@@ -1403,7 +1603,7 @@ void fight_operation_interface(int *x, int *y, int *fight_choose, TCHAR show_str
 				}
 				else if (*fight_choose == 3)// && struct_player.s_pokemons[2].is_own == 1 && struct_player.s_pokemons[2].is_change == 1
 				{
-					pokemon_operation(own_pm, own_now_bleed, &struct_player.s_pokemons[2], fight_turn, fight_choose);
+					pokemon_operate(own_pm, own_now_bleed, &struct_player.s_pokemons[2], fight_turn, fight_choose);
 					/*show_change_pokemon_words(own_pm->name, struct_player.s_pokemons[2].name);
 					struct_player.s_pokemons[2].is_change = 0; //交换完宝可梦，该宝可梦的is_change设置为0
 					*own_pm = struct_player.s_pokemons[2];
@@ -1418,7 +1618,7 @@ void fight_operation_interface(int *x, int *y, int *fight_choose, TCHAR show_str
 			{
 				if (*fight_choose == 1)//&& own_pm->s_skill[3].left_pp > 0
 				{
-					skill_operation(own_pm, enemy_pm, enemy_now_bleed, &own_pm->s_skill[3], fight_turn, fight_choose);
+					skill_operate(own_pm, enemy_pm, enemy_now_bleed, &own_pm->s_skill[3], fight_turn, fight_choose);
 					//own_pm->s_skill[3].left_pp--;
 					//pm_attack_pm(own_pm, enemy_pm, own_pm->s_skill[3].name, own_pm->s_skill[3].damage, enemy_now_bleed);
 					//*fight_turn = 0;
@@ -1427,7 +1627,7 @@ void fight_operation_interface(int *x, int *y, int *fight_choose, TCHAR show_str
 				}
 				else if (*fight_choose == 2)//&& struct_player.s_good[3].left > 0
 				{
-					pp_good_operatiom(own_pm, &struct_player.s_good[3], fight_turn, fight_choose);
+					pp_good_operate(own_pm, &struct_player.s_good[3], fight_turn, fight_choose);
 					/*show_use_good_words(own_pm->name, struct_player.s_good[3].name, struct_player.s_good[3].add, "技能点");
 					for (int i = 0; i < 4; i++)
 					{
@@ -1441,7 +1641,7 @@ void fight_operation_interface(int *x, int *y, int *fight_choose, TCHAR show_str
 				}
 				else if (*fight_choose == 3)// && struct_player.s_pokemons[3].is_own == 1 && struct_player.s_pokemons[3].is_change == 1
 				{
-					pokemon_operation(own_pm, own_now_bleed, &struct_player.s_pokemons[3], fight_turn, fight_choose);
+					pokemon_operate(own_pm, own_now_bleed, &struct_player.s_pokemons[3], fight_turn, fight_choose);
 					/*show_change_pokemon_words(own_pm->name, struct_player.s_pokemons[3].name);
 					struct_player.s_pokemons[3].is_change = 0; //交换完宝可梦，该宝可梦的is_change设置为0
 					*own_pm = struct_player.s_pokemons[3];
@@ -1508,7 +1708,6 @@ int calculate_bleed(int *now_bleed, pokemon *pm, int bleed_width)
 void fight_interface(pokemon *own_pm, int *own_now_bleed, int own_bleed_width,
 						pokemon *enemy_pm, int *enemy_now_bleed, int enemy_bleed_width)
 {
-	//startup_font();
 	//战斗场景图片
 	IMAGE img_fight_map;
 	loadimage(&img_fight_map, _T("资源文件\\maps\\fight_map.png"));
@@ -1608,7 +1807,7 @@ void miss_enemy_words(pokemon *enemy_pm)
 	setfillcolor(WHITE);
 	solidroundrect(20, WINDOWS_HIGH * 3 / 4 + 5, WINDOWS_WIDTH - 20, WINDOWS_HIGH - 5, 10, 10);
 	//startup_font();
-	outtextxy(50, WINDOWS_HIGH * 3 / 4 + 30, _T("野生的敌人出现！！！"));
+	outtextxy(50, WINDOWS_HIGH * 3 / 4 + 30, _T("敌人出现！！！"));
 	FlushBatchDraw();
 	next_step();
 }
@@ -1888,7 +2087,7 @@ void show_map()
 
 
 
-void operate()
+void keyboard_operation()
 {
 	int step = 10;
 	char input;
@@ -1990,7 +2189,7 @@ int main(void)
 		judge_into_map();
 		is_fight();
 		pokemons_refresh();
-		operate();
+		keyboard_operation();
 	}
 	gameover();
 	return 0;
@@ -2033,7 +2232,7 @@ void startup_pokemon()
 	PM[0].s_skill[3].left_pp = 3;
 
 
-	PM[1].x = 367;  //367
+	PM[1].x = 0;  //367
 	PM[1].y = 420;
 	PM[1].number = 1;
 	strcpy(PM[1].name, "Entei");
