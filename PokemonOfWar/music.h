@@ -1,16 +1,18 @@
 //音乐
-void load_music();
 void play_music_one(char *);
 void music_choose();
-void music_fight();
+void music_fight1();
+void music_fight2();
 void music_next();
 void music_open_door();
 void music_bk1();
+void music_bk2();
+void music_bk3();
 void music_start();
 void music_victory();
 void music_defeat();
 void music_get();
-
+void load_skill_music();
 
 
 void music_choose()
@@ -35,18 +37,43 @@ void music_open_door()
 void music_bk1()
 {
 	mciSendString(_T("close startmusic"), NULL, 0, NULL);
-	mciSendString(_T("close fgmusic"), NULL, 0, NULL);
-	mciSendString(_T("open 资源文件\\music\\背景音乐.mp3 alias bkmusic1"), NULL, 0, NULL);
+	mciSendString(_T("open 资源文件\\music\\背景音乐1.mp3 alias bkmusic1"), NULL, 0, NULL);
 	mciSendString(_T("play bkmusic1 repeat"), NULL, 0, NULL);
 }
 
+void music_bk2()
+{
+	mciSendString(_T("open 资源文件\\music\\背景音乐2.mp3 alias bkmusic2"), NULL, 0, NULL);
+	mciSendString(_T("play bkmusic2 repeat"), NULL, 0, NULL);
+}
 
-void music_fight()
+
+void music_bk3()
+{
+	mciSendString(_T("open 资源文件\\music\\背景音乐3.mp3 alias bkmusic3"), NULL, 0, NULL);
+	mciSendString(_T("play bkmusic3 repeat"), NULL, 0, NULL);
+}
+
+
+void music_fight1()
 {
 	mciSendString(_T("close bkmusic1"), NULL, 0, NULL);
-	mciSendString(_T("open 资源文件\\music\\战斗2.mp3 alias fgmusic"), NULL, 0, NULL);
-	mciSendString(_T("play fgmusic repeat"), NULL, 0, NULL);
+	mciSendString(_T("close bkmusic2"), NULL, 0, NULL);
+	mciSendString(_T("close bkmusic3"), NULL, 0, NULL);
+	mciSendString(_T("open 资源文件\\music\\战斗1.mp3 alias fgmusic1"), NULL, 0, NULL);
+	mciSendString(_T("play fgmusic1 repeat"), NULL, 0, NULL);
 }
+
+
+void music_fight2()
+{
+	mciSendString(_T("close bkmusic1"), NULL, 0, NULL);
+	mciSendString(_T("close bkmusic2"), NULL, 0, NULL);
+	mciSendString(_T("close bkmusic3"), NULL, 0, NULL);
+	mciSendString(_T("open 资源文件\\music\\战斗2.mp3 alias fgmusic2"), NULL, 0, NULL);
+	mciSendString(_T("play fgmusic2 repeat"), NULL, 0, NULL);
+}
+
 
 void music_start()
 {
@@ -72,14 +99,16 @@ void play_music_one(char *filename)
 
 void music_victory()
 {
-	mciSendString(_T("close fgmusic"), NULL, 0, NULL);
+	mciSendString(_T("close fgmusic1"), NULL, 0, NULL);
+	mciSendString(_T("close fgmusic2"), NULL, 0, NULL);
 	play_music_one("资源文件\\music\\胜利.mp3");
 }
 
 
 void music_defeat()
 {
-	mciSendString(_T("close fgmusic"), NULL, 0, NULL);
+	mciSendString(_T("close fgmusic1"), NULL, 0, NULL);
+	mciSendString(_T("close fgmusic2"), NULL, 0, NULL);
 	play_music_one("资源文件\\music\\失败.mp3");
 }
 
@@ -87,19 +116,16 @@ void music_defeat()
 
 void music_get()
 {
-	//mciSendString(_T("close fgmusic"), NULL, 0, NULL);
-	play_music_one("资源文件\\music\\获得物品.mp3");
+	mciSendString(_T("close getmusic"), NULL, 0, NULL);
+	mciSendString(_T("open 资源文件\\music\\获得物品.mp3 alias getmusic"), NULL, 0, NULL);
+	mciSendString(_T("play getmusic"), NULL, 0, NULL);
 }
 
 
-
-/*void load_music()
+/*void load_skill_music()
 {
-	mciSendString(_T("open 资源文件\\music\\开始音乐.mp3 alias startmusic"), NULL, 0, NULL);
-	mciSendString(_T("open 资源文件\\music\\背景音乐.mp3 alias bkmusic1"), NULL, 0, NULL);
-	mciSendString(_T("open 资源文件\\music\\选择.wav alias chmusic"), NULL, 0, NULL);
-	mciSendString(_T("open 资源文件\\music\\下一页2.wav alias nemusic"), NULL, 0, NULL);
-	mciSendString(_T("open 资源文件\\music\\战斗2.mp3 alias fgmusic"), NULL, 0, NULL);
-	mciSendString(_T("open 资源文件\\music\\开门声.wav alias opmusic"), NULL, 0, NULL);
+	mciSendString(_T("open 资源文件\\音乐\\十万伏特.mp3 alias sk1"), NULL, 0, NULL);
+	mciSendString(_T("open 资源文件\\音乐\\尖叫.mp3 alias sk2"), NULL, 0, NULL);
+	mciSendString(_T("open 资源文件\\音乐\\电磁波.mp3 alias sk3"), NULL, 0, NULL);
+	mciSendString(_T("open 资源文件\\音乐\\打雷.mp3 alias sk4"), NULL, 0, NULL);
 }*/
-
