@@ -4,7 +4,7 @@
 *	编译环境：vc2017 + EasyX_20200109(beta)
 *	Maker：	  panyu.tan
 *	最初版本：2020/2/7
-*	最后修改：2020/2/22
+*	最后修改：2020/2/23
 *******************************************/
 
 #include <graphics.h>
@@ -14,8 +14,11 @@
 #include <stdio.h>
 #include "tools.h"
 #include "pokemon_skills.h"
+#include "music.h"
 
 #pragma comment( lib, "MSIMG32.LIB")	// 引用该库才能使用 TransparentBlt 函数
+#pragma comment( lib, "Winmm.lib")		// 使用播放音乐
+
 
 ///////////////宏定义///////////////
 #define WINDOWS_WIDTH 800			
@@ -42,9 +45,6 @@ int g_plot = 0;							//剧情判断
 int g_is_win = 0;						//战斗胜利判断，0未loss，1未win
 
 //npc坐标
-int g_npc1_x;
-int g_npc1_y;
-
 //右下角女孩
 int g_npc_zhang_x;
 int g_npc_zhang_y;
@@ -175,7 +175,7 @@ void enemy_fight_turn(pokemon *, pokemon *, int *, int *);
 void own_fight_turn(int *, int *, int *, int *);
 int  calculate_bleed(int *, pokemon *, int);
 void recovery_pp();
-
+void next_step();
 
 //读档和存档的函数
 void readRecordFile();
@@ -202,6 +202,7 @@ void plot_4();
 void plot_5();
 void plot_6();
 void plot_7();
+void get_thing(TCHAR *);
 
 void npc_drom_talk1();
 void npc_zhang_talk1();
@@ -219,10 +220,32 @@ void npc_green_takl2();
 void npc_green_takl3();
 void npc_hospital_talk1();
 void npc_kk_talk1();
+void npc_ys_talk1();
 
 
 
+void get_thing(TCHAR *w_good_name)
+{
+	music_get();
+	show_dialog_box_words(_T(""), _T("得到了"), w_good_name);
+}
 
+
+void next_step()
+{
+	FlushBatchDraw();
+	//清除键盘缓冲区,防止切换过场动画时候按到其他按键
+	FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
+	while (1)
+	{
+		char input = _getch();
+		if (input == 'j')
+		{
+			music_next();
+			break;
+		}
+	}
+}
 
 
 
@@ -239,7 +262,7 @@ void recovery_pp()
 void readRecordFile()
 {
 	FILE *fp;
-	fp = fopen("资源文件\\gamedata.dat", "r");
+	fp = fopen("资源文件\\save\\gamedata.dat", "r");
 	if (fp != NULL)
 	{
 		fscanf(fp, "%d %d %d %d %d %d %d %d %d %d %d",
@@ -263,7 +286,7 @@ void readRecordFile()
 void writeRecordFile()
 {
 	FILE *fp;
-	fp = fopen("资源文件\\gamedata.dat", "w");
+	fp = fopen("资源文件\\save\\gamedata.dat", "w");
 	if (fp != NULL)
 	{
 		fprintf(fp, "%d %d %d %d %d %d %d %d %d %d %d",
@@ -494,6 +517,11 @@ void npc_kk_talk1()
 	show_dialog_box_words(_T("卡卡西:"), _T("正在存档，请稍后......"), _T("存档成功！"));
 }
 
+void npc_ys_talk1()
+{
+	show_dialog_box_words(_T("勇士:"), _T("随着剧情的发展，每个人的对话都会有改变"), _T("你和green girl说过话了吗"));
+	show_dialog_box_words(_T("勇士:"), _T("听说她经常会说一些奇怪的话"), _T("可怜的孩子..."));
+}
 
 
 
@@ -585,7 +613,11 @@ void judge_plot_and_talk(int player_x ,int player_y, enum Map e_map)
 					pokemon own_pm = struct_player.s_pokemons[0];
 					show_fight(&own_pm, &PM[1]);	//触发剧情，进入战斗
 					if (g_is_win == 1)
+					{
+						get_thing(_T("u盘"));
 						g_plot = 3;
+					}
+						
 				}
 				else if (g_plot >= 3)
 					npc_burrow_talk1();
@@ -601,7 +633,10 @@ void judge_plot_and_talk(int player_x ,int player_y, enum Map e_map)
 					pokemon own_pm = struct_player.s_pokemons[0];
 					show_fight(&own_pm, &PM[3]);	//触发剧情，进入战斗
 					if (g_is_win == 1)
+					{
+						get_thing(_T("纸质论文"));
 						g_plot = 4;
+					}	
 				}
 				else if (g_plot >= 4)
 					npc_shop_talk1();
@@ -615,6 +650,7 @@ void judge_plot_and_talk(int player_x ,int player_y, enum Map e_map)
 				{
 					g_plot = 6;
 					plot_6();
+					get_thing(_T("通行证"));
 				}
 				else if (g_plot >= 5)
 					npc_office_talk1();
@@ -660,7 +696,12 @@ void judge_plot_and_talk(int player_x ,int player_y, enum Map e_map)
 
 			else if (NPC[i].x == g_npc_kk_x && NPC[i].y == g_npc_kk_y)
 			{
-			npc_kk_talk1();
+				npc_kk_talk1();
+			}
+
+			else if (NPC[i].x == g_npc_ys_x && NPC[i].y == g_npc_ys_y)
+			{
+				npc_ys_talk1();
 			}
 		}
 	}
@@ -931,6 +972,7 @@ void into_map_keyboard_operation(int(*canvas)[600], int *player_x, int *player_y
 void into_map(int p_x, int p_y, int out_x, int out_y, TCHAR *map_path, int(*canvas)[600], int down_border, 
 				int left_border, int right_border, int top_border ,  TCHAR *npc_path, enum Map e_map)
 {
+	music_open_door();
 	setbkcolor(BLACK);
 	cleardevice();
 
@@ -968,6 +1010,7 @@ void into_map(int p_x, int p_y, int out_x, int out_y, TCHAR *map_path, int(*canv
 
 		if (player_x > out_x && player_x < out_x + 50 && player_y >= out_y && g_player_picture_j == 0)
 		{
+			music_open_door();
 			player_y += 10;	//防止出门然后坐标合适又进门
 			break;
 		}
@@ -979,6 +1022,8 @@ void into_map(int p_x, int p_y, int out_x, int out_y, TCHAR *map_path, int(*canv
 
 void start_menu()
 {
+	music_start();
+
 	int y = 205;
 	while (g_game_state == 0)
 	{
@@ -1005,10 +1050,19 @@ void start_menu()
 		if (_kbhit())
 		{
 			input = _getch();
-			if (input == 'w' && y - 50 >= 205)	y -= 50;
-			if (input == 's' && y + 50 <= 355)	y += 50;	
+			if (input == 'w' && y - 50 >= 205)
+			{
+				music_choose();
+				y -= 50;
+			}
+			if (input == 's' && y + 50 <= 355)
+			{
+				music_choose();
+				y += 50;
+			}
 			if (input == 'j')
 			{
+				music_next();
 				if (y == 205)	g_game_state = 1;
 				if (y == 255)
 				{
@@ -1018,7 +1072,8 @@ void start_menu()
 				if (y == 305)	g_game_state = 3;
 				//1.exit(1)表示异常退出, 在退出前可以给出一些提示信息或在调试程序中察看出错原因。
 				//2.exit(0)表示正常退出。
-				if (y == 355)	exit(0);	
+				if (y == 355)	exit(0);
+				music_bk1();
 			}
 		}
 	}
@@ -1187,9 +1242,7 @@ void show_dialog_box_words(TCHAR *name, TCHAR *say1, TCHAR *say2)
 
 	//startup_font();
 	outtextxy(50, WINDOWS_HIGH * 3 / 4 + 15, name);
-	next_step();
 	outtextxy(50, WINDOWS_HIGH * 3 / 4 + 50, say1);
-	next_step();
 	outtextxy(50, WINDOWS_HIGH * 3 / 4 + 80, say2);
 	next_step();
 }
@@ -1519,16 +1572,27 @@ void fight_operation_interface(int *x, int *y, int *fight_choose, TCHAR show_str
 		input = _getch();
 		if (input == 'w' && *y - 60 >= WINDOWS_HIGH * 3 / 4 + 30)
 		{
+			music_choose();
 			*y -= 60;
 		}
 		if (input == 's' && *y + 60 <= WINDOWS_HIGH * 3 / 4 + 90)
+		{
+			music_choose();
 			*y += 60;
+		}
 		if (input == 'a' && *x - 200 >= 60)
+		{
+			music_choose();
 			*x -= 200;
+		}
 		if (input == 'd' && *x + 200 <= 260)
+		{
+			music_choose();
 			*x += 200;
+		}
 		if (input == 'j')
 		{
+			music_next();
 			if (*x == 60 && *y == WINDOWS_HIGH * 3 / 4 + 30)
 			{
 				if (*fight_choose == 1)	//判断pp剩余时候才能使用技能 && own_pm->s_skill[0].left_pp > 0
@@ -1673,7 +1737,12 @@ void fight_operation_interface(int *x, int *y, int *fight_choose, TCHAR show_str
 				}
 			}
 		}
-		if (input == 'k')	*fight_choose = 0;
+		if (input == 'k')
+		{
+			music_next();
+			*fight_choose = 0;
+		}
+			
 	}
 	//当选择光标指向时候显示详细的信息
 	if(*fight_choose == 1)
@@ -1880,15 +1949,32 @@ void own_fight_turn(int *choose_x, int *choose_y, int *fight_choose, int *is_ove
 	{
 		input = _getch();
 		if (input == 'w' && *choose_y - 60 >= WINDOWS_HIGH * 3 / 4 + 30)
+		{
+			music_choose();
 			*choose_y -= 60;
+		}
+			
 		if (input == 's' && *choose_y + 60 <= WINDOWS_HIGH * 3 / 4 + 90)
+		{
+			music_choose();
 			*choose_y += 60;
+		}
+			
 		if (input == 'a' && *choose_x - 150 >= WINDOWS_WIDTH * 3 / 5 + 30)
+		{
+			music_choose();
 			*choose_x -= 150;
+		}
+			
 		if (input == 'd' && *choose_x + 150 <= WINDOWS_WIDTH * 3 / 5 + 180)
+		{
+			music_choose();
 			*choose_x += 150;
+		}
+			
 		if (input == 'j')
 		{
+			music_next();
 			if (*choose_x == WINDOWS_WIDTH * 3 / 5 + 30 && *choose_y == WINDOWS_HIGH * 3 / 4 + 30)
 				*fight_choose = 1;	//战斗
 			if (*choose_x == WINDOWS_WIDTH * 3 / 5 + 180 && *choose_y == WINDOWS_HIGH * 3 / 4 + 30)
@@ -1922,7 +2008,6 @@ void show_fight(pokemon *own_pm, pokemon *enemy_pm)
 	//战斗切换画面
 	interface_change_animatio(WINDOWS_WIDTH, WINDOWS_HIGH);
 
-
 	//判断战斗是否结束,1为结束
 	int is_over = 0;
 	//1为player攻击，0为地方攻击
@@ -1949,6 +2034,7 @@ void show_fight(pokemon *own_pm, pokemon *enemy_pm)
 	int own_now_bleed = own_pm->bleed;	
 
 	/************************遇敌提示********************************/
+	music_fight();
 	miss_enemy_words(enemy_pm);
 	
 	while (is_over != 1)
@@ -1960,18 +2046,20 @@ void show_fight(pokemon *own_pm, pokemon *enemy_pm)
 		//生命值是否为0
 		if (own_now_bleed <= 0)
 		{
+			music_defeat();
 			outtextxy(50, WINDOWS_HIGH * 3 / 4 + 30, _T("you loss!"));
 			g_is_win = 0;
 			FlushBatchDraw();
-			Sleep(300);
+			Sleep(1000);
 			break;
 		}
 		if (enemy_now_bleed <= 0)
 		{
+			music_victory();
 			outtextxy(50, WINDOWS_HIGH * 3 / 4 + 30, _T("winner"));
 			g_is_win = 1;
 			FlushBatchDraw();
-			Sleep(300);
+			Sleep(1000);
 			break;
 		}
 
@@ -2022,6 +2110,7 @@ void show_fight(pokemon *own_pm, pokemon *enemy_pm)
 	}
 	//战斗结束切换画面
 	interface_change_animatio(WINDOWS_WIDTH, WINDOWS_HIGH);
+	music_bk1();
 }
 
 
@@ -2254,7 +2343,7 @@ void startup_pokemon()
 	PM[0].s_skill[3].left_pp = 3;
 
 
-	PM[1].x = 0;  //367
+	PM[1].x = 367;  //367
 	PM[1].y = 420;
 	PM[1].number = 1;
 	strcpy(PM[1].name, "Entei");

@@ -42,14 +42,3 @@ void transparentimage(IMAGE *dstimg, int x, int y, IMAGE *srcimg, UINT transpare
 }
 
 
-void next_step()
-{
-	FlushBatchDraw();
-	//清除键盘缓冲区,防止切换过场动画时候按到其他按键
-	FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
-	while (1)
-	{
-		char input = _getch();
-		if (input == 'j') break;
-	}
-}
