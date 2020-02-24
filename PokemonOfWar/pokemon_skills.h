@@ -1,6 +1,25 @@
-//十万伏特，尖叫，电磁波，打雷是皮卡丘的skill目前，直接调用会显示再对方区域，其他则相反
+//////我方技能//////
+void scream();			//		 0
+void lighting();		//		 1
+void flash();			//		 2
+void thunder();			//		 3
+void catchit();			//		 4
+void eat();				//       5
+void wind();			//龙卷风 6
+
+////敌人技能/////
+void boom();			//大爆炸 7
+void waterattack();		//水柱	 8
+void sword();			//剑雨   9
+void firehigh();		//火柱   10
+void musicattack();		//音波   11
+void lighton();			//激光   12
+void star();			//星星   13
+void windattack();		//风刃   14
 
 
+
+///////////////////我方技能///////////////////
 void scream()//尖叫skill,在己方宝可梦前显示
 {
 	mciSendString(_T("Seek sk2 to start"), NULL, 0, NULL);
@@ -14,6 +33,8 @@ void scream()//尖叫skill,在己方宝可梦前显示
 	FlushBatchDraw();
 	Sleep(500);
 }
+
+
 
 
 void lighting()
@@ -44,6 +65,9 @@ void lighting()
 	Sleep(500);
 	// mciSendString(_T("close sk1"), NULL, 0, NULL);
 }
+
+
+
 
 void flash()
 {
@@ -89,6 +113,8 @@ void flash()
 }
 
 
+
+
 //打雷skill的展示
 void thunder()
 {
@@ -113,6 +139,9 @@ void thunder()
 }
 
 
+
+
+
 void catchit() //电牢
 {
 	IMAGE im15, im16;
@@ -125,6 +154,54 @@ void catchit() //电牢
 	//mciSendString(_T("close enemy_1"), NULL, 0, NULL);
 }
 
+
+
+
+
+void eat()
+{
+	IMAGE im9, im10;
+	mciSendString(_T("Seek enemy_7 to start"), NULL, 0, NULL);
+	mciSendString(_T("play enemy_7"), NULL, 0, NULL);
+	loadimage(&im9, _T("资源文件\\skill\\撕咬.jpg"));
+	loadimage(&im10, _T("资源文件\\skill\\撕咬bk.jpg"));
+	putimage(500, 100, &im10, NOTSRCERASE);
+	putimage(500, 100, &im9, SRCINVERT);
+	FlushBatchDraw();
+	Sleep(500);
+	//mciSendString(_T("close enemy_7"), NULL, 0, NULL);
+}
+
+
+
+
+
+//龙卷风
+void wind()
+{
+	IMAGE im9, im10;
+	mciSendString(_T("Seek enemy_3 to start"), NULL, 0, NULL);
+	mciSendString(_T("play enemy_3"), NULL, 0, NULL);
+	loadimage(&im9, _T("资源文件\\skill\\风刃.jpg"));
+	loadimage(&im10, _T("资源文件\\skill\\风刃bk.jpg"));
+	int y;
+	for (y = 250; y > 100; y -= 15)
+	{
+		putimage(550, y, &im10, NOTSRCERASE);
+		putimage(550, y, &im9, SRCINVERT);
+		putimage(500, y, &im10, NOTSRCERASE);
+		putimage(500, y, &im9, SRCINVERT);
+		putimage(600, y, &im10, NOTSRCERASE);
+		putimage(600, y, &im9, SRCINVERT);
+		FlushBatchDraw();
+		Sleep(50);
+	}
+}
+
+
+
+
+/////////////////////////////敌人技能////////////////////////////////
 
 void boom()
 {
@@ -139,6 +216,9 @@ void boom()
 		Sleep(10);
 	}
 }
+
+
+
 
 
 //水柱
@@ -160,6 +240,9 @@ void waterattack()
 	Sleep(500);
 	//	mciSendString(_T("close enemy_3"), NULL, 0, NULL);
 }
+
+
+
 
 
 //剑雨
@@ -184,6 +267,9 @@ void sword()
 	Sleep(500);
 	//mciSendString(_T("close enemy_4"), NULL, 0, NULL);
 }
+
+
+
 
 
 
@@ -213,38 +299,138 @@ void firehigh()
 }
 
 
-void eat()
+
+
+
+
+
+//音波
+void musicattack()
 {
 	IMAGE im9, im10;
-	mciSendString(_T("Seek enemy_7 to start"), NULL, 0, NULL);
-	mciSendString(_T("play enemy_7"), NULL, 0, NULL);
-	loadimage(&im9, _T("资源文件\\skill\\撕咬.jpg"));
-	loadimage(&im10, _T("资源文件\\skill\\撕咬bk.jpg"));
-	putimage(500, 100, &im10, NOTSRCERASE);
-	putimage(500, 100, &im9, SRCINVERT);
+	loadimage(&im9, _T("资源文件\\skill\\音乐攻击1.jpg"));
+	loadimage(&im10, _T("资源文件\\skill\\音乐攻击1bk.jpg"));
+	putimage(240, 250, &im10, NOTSRCERASE);
+	putimage(240, 250, &im9, SRCINVERT);
+	FlushBatchDraw();
+	Sleep(300);
+	IMAGE im11, im12;
+	loadimage(&im11, _T("资源文件\\skill\\音乐攻击2.jpg"));
+	loadimage(&im12, _T("资源文件\\skill\\音乐攻击2bk.jpg"));
+	putimage(190, 300, &im12, NOTSRCERASE);
+	putimage(190, 300, &im11, SRCINVERT);
+	FlushBatchDraw();
+	Sleep(300);
+	IMAGE im13, im14;
+	loadimage(&im13, _T("资源文件\\skill\\音乐攻击3.jpg"));
+	loadimage(&im14, _T("资源文件\\skill\\音乐攻击3bk.jpg"));
+	putimage(110, 310, &im14, NOTSRCERASE);
+	putimage(110, 310, &im13, SRCINVERT);
+	FlushBatchDraw();
+	Sleep(300);
+	putimage(150, 330, &im10, NOTSRCERASE);
+	putimage(150, 330, &im9, SRCINVERT);
+	FlushBatchDraw();
+	Sleep(300);
+	putimage(160, 410, &im12, NOTSRCERASE);
+	putimage(160, 410, &im11, SRCINVERT);
 	FlushBatchDraw();
 	Sleep(500);
-	//mciSendString(_T("close enemy_7"), NULL, 0, NULL);
+	//	mciSendString(_T("close enemy_5"), NULL, 0, NULL);
 }
 
 
-void wind()
+
+
+
+
+//激光
+void lighton()
 {
-	IMAGE im9, im10;
-	mciSendString(_T("Seek enemy_3 to start"), NULL, 0, NULL);
-	mciSendString(_T("play enemy_3"), NULL, 0, NULL);
-	loadimage(&im9, _T("资源文件\\skill\\风刃.jpg"));
-	loadimage(&im10, _T("资源文件\\skill\\风刃bk.jpg"));
-	int y;
-	for (y = 250; y > 100; y -= 15)
+	IMAGE im5, im6;
+	loadimage(&im5, _T("资源文件\\skill\\激光.jpg"));
+	loadimage(&im6, _T("资源文件\\skill\\激光bk.jpg"));
+	putimage(200, 300, &im6, NOTSRCERASE);
+	putimage(200, 300, &im5, SRCINVERT);
+	FlushBatchDraw();
+	Sleep(500);
+	//mciSendString(_T("close enemy_6"), NULL, 0, NULL);
+}
+
+
+
+
+
+
+//高速星星
+void star()
+{
+	IMAGE im5, im6;
+	loadimage(&im5, _T("资源文件\\skill\\星星.jpg"));
+	loadimage(&im6, _T("资源文件\\skill\\星星bk.jpg"));
+	putimage(180, 310, &im6, NOTSRCERASE);
+	putimage(180, 310, &im5, SRCINVERT);
+	FlushBatchDraw();
+	Sleep(100);
+	putimage(180, 350, &im6, NOTSRCERASE);
+	putimage(180, 350, &im5, SRCINVERT);
+	FlushBatchDraw();
+	Sleep(300);
+	putimage(200, 315, &im6, NOTSRCERASE);
+	putimage(200, 315, &im5, SRCINVERT);
+	FlushBatchDraw();
+	Sleep(100);
+	putimage(230, 310, &im6, NOTSRCERASE);
+	putimage(230, 310, &im5, SRCINVERT);
+	FlushBatchDraw();
+	Sleep(100);
+	putimage(240, 340, &im6, NOTSRCERASE);
+	putimage(240, 340, &im5, SRCINVERT);
+	FlushBatchDraw();
+	Sleep(100);
+	putimage(200, 340, &im6, NOTSRCERASE);
+	putimage(200, 340, &im5, SRCINVERT);
+	putimage(200, 360, &im6, NOTSRCERASE);
+	putimage(200, 360, &im5, SRCINVERT);
+	FlushBatchDraw();
+	Sleep(100);
+	putimage(185, 355, &im6, NOTSRCERASE);
+	putimage(185, 355, &im5, SRCINVERT);
+	putimage(225, 370, &im6, NOTSRCERASE);
+	putimage(225, 370, &im5, SRCINVERT);
+	FlushBatchDraw();
+	Sleep(100);
+	putimage(200, 390, &im6, NOTSRCERASE);
+	putimage(200, 390, &im5, SRCINVERT);
+	putimage(200, 400, &im6, NOTSRCERASE);
+	putimage(200, 400, &im5, SRCINVERT);
+	FlushBatchDraw();
+	Sleep(500);
+	//	mciSendString(_T("close enemy_1"), NULL, 0, NULL);
+}
+
+
+
+
+
+
+
+//风刃
+void windattack()
+{
+	IMAGE im11;
+	int x = 320, y = 250;
+	for (x = 320, y = 250; x >= 120 && y <= 550; x = x - 2, y = y + 1)
 	{
-		putimage(550, y, &im10, NOTSRCERASE);
-		putimage(550, y, &im9, SRCINVERT);
-		putimage(500, y, &im10, NOTSRCERASE);
-		putimage(500, y, &im9, SRCINVERT);
-		putimage(600, y, &im10, NOTSRCERASE);
-		putimage(600, y, &im9, SRCINVERT);
+		getimage(&im11, x, y, 80, 46);
+		IMAGE im9, im10;
+		loadimage(&im9, _T("资源文件\\skill\\风刀.jpg"));
+		loadimage(&im10, _T("资源文件\\skill\\风刀bk.jpg"));
+		putimage(x, y, &im10, NOTSRCERASE);
+		putimage(x, y, &im9, SRCINVERT);
 		FlushBatchDraw();
-		Sleep(50);
+		putimage(x, y, &im11);
 	}
+	Sleep(500);
+	//mciSendString(_T("close enemy_2"), NULL, 0, NULL);
 }

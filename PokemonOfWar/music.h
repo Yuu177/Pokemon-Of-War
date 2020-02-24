@@ -8,6 +8,7 @@ void music_open_door();
 void music_bk1();
 void music_bk2();
 void music_bk3();
+void music_bk4();
 void music_start();
 void music_victory();
 void music_defeat();
@@ -54,12 +55,19 @@ void music_bk3()
 	mciSendString(_T("play bkmusic3 repeat"), NULL, 0, NULL);
 }
 
+void music_bk4()
+{
+	mciSendString(_T("open 资源文件\\music\\背景音乐4.mp3 alias bkmusic4"), NULL, 0, NULL);
+	mciSendString(_T("play bkmusic4 repeat"), NULL, 0, NULL);
+}
+
 
 void music_fight1()
 {
 	mciSendString(_T("close bkmusic1"), NULL, 0, NULL);
 	mciSendString(_T("close bkmusic2"), NULL, 0, NULL);
 	mciSendString(_T("close bkmusic3"), NULL, 0, NULL);
+	mciSendString(_T("close bkmusic4"), NULL, 0, NULL);
 	mciSendString(_T("open 资源文件\\music\\战斗1.mp3 alias fgmusic1"), NULL, 0, NULL);
 	mciSendString(_T("play fgmusic1 repeat"), NULL, 0, NULL);
 }
@@ -69,6 +77,7 @@ void music_fight2()
 {
 	mciSendString(_T("close bkmusic1"), NULL, 0, NULL);
 	mciSendString(_T("close bkmusic2"), NULL, 0, NULL);
+	mciSendString(_T("close bkmusic3"), NULL, 0, NULL);
 	mciSendString(_T("close bkmusic3"), NULL, 0, NULL);
 	mciSendString(_T("open 资源文件\\music\\战斗2.mp3 alias fgmusic2"), NULL, 0, NULL);
 	mciSendString(_T("play fgmusic2 repeat"), NULL, 0, NULL);

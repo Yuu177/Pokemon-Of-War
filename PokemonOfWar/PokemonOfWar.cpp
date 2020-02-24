@@ -4,7 +4,7 @@
 *	编译环境：vc2017 + EasyX_20200109(beta)
 *	Maker：	  panyu.tan
 *	最初版本：2020/2/7
-*	最后修改：2020/2/23
+*	最后修改：2020/2/24
 *******************************************/
 
 #include <graphics.h>
@@ -103,7 +103,7 @@ struct skill
 	int damage;
 	int init_pp;
 	int left_pp;
-};
+}g_s_pm_skills[15];
 
 
 struct pokemon
@@ -176,6 +176,9 @@ void own_fight_turn(int *, int *, int *, int *);
 int  calculate_bleed(int *, pokemon *, int);
 void recovery_pp();
 void next_step();
+void startup_struct_skill();
+
+
 
 //读档和存档的函数
 void readRecordFile();
@@ -223,6 +226,92 @@ void npc_kk_talk1();
 void npc_ys_talk1();
 
 
+
+void startup_struct_skill()
+{
+	strcpy(g_s_pm_skills[0].name, "scream");
+	g_s_pm_skills[0].damage = 60;
+	g_s_pm_skills[0].init_pp = 5;
+	g_s_pm_skills[0].left_pp = 5;
+
+	strcpy(g_s_pm_skills[1].name, "lighting");
+	g_s_pm_skills[1].damage = 120;
+	g_s_pm_skills[1].init_pp = 2;
+	g_s_pm_skills[1].left_pp = 2;
+
+	strcpy(g_s_pm_skills[2].name, "flash");
+	g_s_pm_skills[2].damage = 70;
+	g_s_pm_skills[2].init_pp = 4;
+	g_s_pm_skills[2].left_pp = 4;
+
+	strcpy(g_s_pm_skills[3].name, "thunder");
+	g_s_pm_skills[3].damage = 80;
+	g_s_pm_skills[3].init_pp = 3;
+	g_s_pm_skills[3].left_pp = 3;
+
+
+	strcpy(g_s_pm_skills[4].name, "catchit");
+	g_s_pm_skills[4].damage = 85;
+	g_s_pm_skills[4].init_pp = 3;
+	g_s_pm_skills[4].left_pp = 3;
+
+	strcpy(g_s_pm_skills[5].name, "eat");
+	g_s_pm_skills[5].damage = 70;
+	g_s_pm_skills[5].init_pp = 4;
+	g_s_pm_skills[5].left_pp = 4;
+
+	strcpy(g_s_pm_skills[6].name, "wind");
+	g_s_pm_skills[6].damage = 65;
+	g_s_pm_skills[6].init_pp = 4;
+	g_s_pm_skills[6].left_pp = 4;
+
+
+	//敌人技能
+	strcpy(g_s_pm_skills[7].name, "boom");
+	g_s_pm_skills[7].damage = 60;
+	g_s_pm_skills[7].init_pp = 2;
+	g_s_pm_skills[7].left_pp = 2;
+
+	strcpy(g_s_pm_skills[8].name, "waterattack");
+	g_s_pm_skills[8].damage = 70;
+	g_s_pm_skills[8].init_pp = 5;
+	g_s_pm_skills[8].left_pp = 5;
+
+	strcpy(g_s_pm_skills[9].name, "sword");
+	g_s_pm_skills[9].damage = 80;
+	g_s_pm_skills[9].init_pp = 5;
+	g_s_pm_skills[9].left_pp = 5;
+
+	strcpy(g_s_pm_skills[10].name, "firehigh");
+	g_s_pm_skills[10].damage = 90;
+	g_s_pm_skills[10].init_pp = 5;
+	g_s_pm_skills[10].left_pp = 5;
+
+	strcpy(g_s_pm_skills[11].name, "musicattack");
+	g_s_pm_skills[11].damage = 65;
+	g_s_pm_skills[11].init_pp = 5;
+	g_s_pm_skills[11].left_pp = 5;
+
+	strcpy(g_s_pm_skills[12].name, "lighton");
+	g_s_pm_skills[12].damage = 100;
+	g_s_pm_skills[12].init_pp = 5;
+	g_s_pm_skills[12].left_pp = 5;
+
+	strcpy(g_s_pm_skills[13].name, "star");
+	g_s_pm_skills[13].damage = 85;
+	g_s_pm_skills[13].init_pp = 5;
+	g_s_pm_skills[13].left_pp = 5;
+
+	strcpy(g_s_pm_skills[14].name, "windattack");
+	g_s_pm_skills[14].damage = 75;
+	g_s_pm_skills[14].init_pp = 5;
+	g_s_pm_skills[14].left_pp = 5;
+
+}
+
+
+
+
 void load_skill_music()
 {
 	mciSendString(_T("open 资源文件\\音乐\\十万伏特.mp3 alias sk1"), NULL, 0, NULL);
@@ -262,8 +351,13 @@ void next_step()
 
 void recovery_pp()
 {
-	for (int i = 0; i < POKEMON_NUMBER; i++)
-		PM[i].s_skill->left_pp = PM[i].s_skill->init_pp;
+	for (int i = 0; i < 4; i++)
+	{
+		for (int j = 0; j < 4; j++)
+		{
+			struct_player.s_pokemons[i].s_skill[j].left_pp = struct_player.s_pokemons[i].s_skill[j].init_pp;
+		}
+	}
 }
 
 
@@ -322,15 +416,15 @@ void startup_player()
 {
 	strcpy(struct_player.s_good[0].name, "Potion");
 	struct_player.s_good[0].left = 4;
-	struct_player.s_good[0].add = 10;
+	struct_player.s_good[0].add = 30;
 
 	strcpy(struct_player.s_good[1].name, "Super_Potion");
 	struct_player.s_good[1].left = 2;
-	struct_player.s_good[1].add = 20;
+	struct_player.s_good[1].add = 40;
 
 	strcpy(struct_player.s_good[2].name, "Hyper_Potion");
-	struct_player.s_good[2].left = 5;
-	struct_player.s_good[2].add = 30;
+	struct_player.s_good[2].left = 2;
+	struct_player.s_good[2].add = 50;
 
 	strcpy(struct_player.s_good[3].name, "pp补充剂");
 	struct_player.s_good[3].left = 1;
@@ -413,8 +507,8 @@ void startup_npc()
 
 void npc_drom_talk1()
 {
-	show_dialog_box_words(_T("室友A:"), _T("歪比歪比？歪比巴布"), _T("are u good 马拉西亚？"));
-	show_dialog_box_words(_T("室友A:"), _T("怎么上交论文吗？"), _T("打印好纸质版，然后去上交给教务秘书就行"));
+	show_dialog_box_words(_T("小七:"), _T("歪比歪比？歪比巴布"), _T("are u good 马拉西亚？"));
+	show_dialog_box_words(_T("小七:"), _T("怎么上交论文吗？"), _T("打印好纸质版，然后去上交给教务秘书就行"));
 }
 
 
@@ -426,6 +520,7 @@ void npc_zhang_talk1()
 void npc_zhang_talk2()
 {
 	show_dialog_box_words(_T("小张:"), _T("今天天气不错"), _T("不是吗"));
+	show_dialog_box_words(_T("小张:"), _T("毕业了去哪里吗"), _T("我想再去一遍海边"));
 }
 
 
@@ -464,6 +559,7 @@ void npc_office_talk2()
 void npc_sec_office_talk1()
 {
 	show_dialog_box_words(_T("教务秘书:"), _T("...算你厉害"), _T("成功上交论文（求饶）"));
+	show_dialog_box_words(_T("Master:"), _T("恭喜你通关游戏，感谢你的游玩"), _T("有什么bug或者不合理的地方你可以反馈给我"));
 }
 
 void npc_sec_office_talk2()
@@ -506,7 +602,7 @@ void npc_green_takl3()
 	lstrcatW(w_year, _T("分"));
 
 	show_dialog_box_words(_T("green girl:"), _T("你知道吗"), _T("这个游戏的最初版本时间是2020年2月7日"));
-	show_dialog_box_words(_T("green girl:"), _T("最后修改是2020年2月23日"), _T("时间真快"));
+	show_dialog_box_words(_T("green girl:"), _T("最后修改是2020年2月24日"), _T("时间真快"));
 	show_dialog_box_words(_T("green girl:"), _T("而现在是"), w_year);
 }
 
@@ -515,7 +611,8 @@ void npc_hospital_talk1()
 {
 	show_dialog_box_words(_T("医生姐姐:"), _T("这里是医院"), _T("有什么需要帮助？"));
 	show_dialog_box_words(_T("医生姐姐:"), _T("......"), _T("需要恢复宝可梦状态？"));
-	show_dialog_box_words(_T("医生姐姐:"), _T("交给我吧......"), _T("恢复了全部宝可梦的技能点！"));
+	music_get();
+	show_dialog_box_words(_T("医生姐姐:"), _T("恢复了"), _T("全部宝可梦的技能点！"));
 	recovery_pp();
 }
 
@@ -538,8 +635,9 @@ void npc_ys_talk1()
 
 void plot_1()
 {
-	show_dialog_box_words(_T("室友A:"), _T("你保存有论文的u盘丢了？"), _T("坏起来了..."));
-	show_dialog_box_words(_T("室友A:"), _T("......"), _T("那去校园路上问问别人有没有捡到吧"));
+	show_dialog_box_words(_T("小七:"), _T("你保存有论文的u盘丢了？"), _T("坏起来了..."));
+	show_dialog_box_words(_T("小七:"), _T("......"), _T("那去校园路上问问别人有没有捡到吧"));
+	show_dialog_box_words(_T("小七:"), _T("如果有什么不懂的地方可以回来问我"), _T("come on"));
 }
 
 
@@ -565,7 +663,7 @@ void plot_4()
 
 void plot_5()
 {
-	show_dialog_box_words(_T("教务秘书:"), _T("你谁！"), _T("叫你导员签字！"));
+	show_dialog_box_words(_T("教务秘书:"), _T("你谁！交论文？"), _T("叫你导员签字！"));
 }
 
 void plot_6()
@@ -575,7 +673,7 @@ void plot_6()
 
 void plot_7()
 {
-	show_dialog_box_words(_T("教务秘书:"), _T("“山有木兮木有枝...”"), _T("......"));
+	show_dialog_box_words(_T("教务秘书:"), _T("“山有木兮木有枝...”"), _T("在天愿做比翼鸟..."));
 	show_dialog_box_words(_T("教务秘书:"), _T("没看到我正在和我男朋友打电话吗？"), _T("你不用毕业了，收拾一下回家吧"));
 	show_dialog_box_words(_T("教务秘书:"), _T("想要交论文？？？"), _T("那我有空的时候怎么不来"));
 	show_dialog_box_words(_T("教务秘书:"), _T("还敢顶嘴"), _T("敬酒不喝喝罚酒"));
@@ -644,7 +742,7 @@ void judge_plot_and_talk(int player_x ,int player_y, enum Map e_map)
 				{
 					plot_4();
 					music_fight1();
-					show_fight(&struct_player.s_pokemons[0], &PM[1]);	//触发剧情，进入战斗
+					show_fight(&struct_player.s_pokemons[0], &PM[4]);	//触发剧情，进入战斗
 					if (g_is_win == 1)
 					{
 						get_thing(_T("纸质论文"));
@@ -1339,6 +1437,10 @@ void use_skill(char *skill_name)
 	if (strcmp(skill_name, "firehigh") == 0)		firehigh();
 	if (strcmp(skill_name, "eat") == 0)				eat();
 	if (strcmp(skill_name, "wind") == 0)			wind();
+	if (strcmp(skill_name, "musicattack") == 0)		musicattack();
+	if (strcmp(skill_name, "lighton") == 0)			lighton();
+	if (strcmp(skill_name, "star") == 0)			star();
+	if (strcmp(skill_name, "windattack") == 0)		windattack();
 }
 
 
@@ -2313,6 +2415,7 @@ void gameover()
 
 int main(void)
 {
+	startup_struct_skill();
 	load_skill_music();
 	startup_npc();
 	startup_pokemon();
@@ -2344,102 +2447,95 @@ void startup_pokemon()
 	PM[0].y = 0;
 	PM[0].number = 0;
 	strcpy(PM[0].name, "Pikachu");
-	PM[0].level = 10;
+	PM[0].level = 12;
 	PM[0].experience = 0;
-	PM[0].bleed = 50;
-	PM[0].attack = 10;
-	PM[0].defence = 10;
+	PM[0].bleed = 70;
+	PM[0].attack = 15;
+	PM[0].defence = 15;
 	PM[0].judge = 0;
 	PM[0].time = 0;
 	PM[0].is_own = 1;
 	PM[0].is_change = 0;
-	strcpy(PM[0].s_skill[0].name, "scream");
-	PM[0].s_skill[0].damage = 50;
-	PM[0].s_skill[0].init_pp = 4;
-	PM[0].s_skill[0].left_pp = 4;
-	strcpy(PM[0].s_skill[1].name, "thunder");//catchit
-	PM[0].s_skill[1].damage = 60;
-	PM[0].s_skill[1].init_pp = 3;
-	PM[0].s_skill[1].left_pp = 3;
-	strcpy(PM[0].s_skill[2].name, "lighting");
-	PM[0].s_skill[2].damage = 200;
-	PM[0].s_skill[2].init_pp = 2;
-	PM[0].s_skill[2].left_pp = 2;
-	strcpy(PM[0].s_skill[3].name, "flash");
-	PM[0].s_skill[3].damage = 70;
-	PM[0].s_skill[3].init_pp = 3;
-	PM[0].s_skill[3].left_pp = 3;
+	PM[0].s_skill[0] = g_s_pm_skills[0];
+	PM[0].s_skill[1] = g_s_pm_skills[1];
+	PM[0].s_skill[2] = g_s_pm_skills[2];
+	PM[0].s_skill[3] = g_s_pm_skills[3];
 
 
-	PM[1].x = 367;  //367
+	//敌方宝可梦
+	PM[1].x = 0;  //367
 	PM[1].y = 420;
 	PM[1].number = 1;
 	strcpy(PM[1].name, "Entei");
-	PM[1].level = 5;
+	PM[1].level = 10;
 	PM[1].experience = 0;
-	PM[1].bleed = 100;
+	PM[1].bleed = 70;
 	PM[1].attack = 10;
-	PM[1].defence = 5;
+	PM[1].defence = 15;
 	PM[1].judge = 1;
 	PM[1].time = 0;
-	strcpy(PM[1].s_skill[0].name, "boom");
-	PM[1].s_skill[0].damage = 50;
-	strcpy(PM[1].s_skill[1].name, "sword");
-	PM[1].s_skill[1].damage = 80;
-	strcpy(PM[1].s_skill[2].name, "sword");
-	PM[1].s_skill[2].damage = 40;
-	strcpy(PM[1].s_skill[3].name, "boom");
-	PM[1].s_skill[3].damage = 70;
+	PM[1].s_skill[0] = g_s_pm_skills[7];
+	PM[1].s_skill[1] = g_s_pm_skills[8];
+	PM[1].s_skill[2] = g_s_pm_skills[9];
+	PM[1].s_skill[3] = g_s_pm_skills[10];
 
 
+	//我方宝可梦
 	PM[2].x = 0;
 	PM[2].y = 0;
 	PM[2].number = 2;
 	strcpy(PM[2].name, "Charizard");
 	PM[2].level = 10;
 	PM[2].experience = 0;
-	PM[2].bleed = 100;
-	PM[2].attack = 10;
-	PM[2].defence = 10;
+	PM[2].bleed = 90;
+	PM[2].attack = 20;
+	PM[2].defence = 20;
 	PM[2].judge = 1;
 	PM[2].time = 0;
 	PM[2].is_own = 1;
-	strcpy(PM[2].s_skill[0].name, "eat");
-	PM[2].s_skill[0].damage = 70;
-	PM[2].s_skill[0].init_pp = 3;
-	PM[2].s_skill[0].left_pp = 3;
-	strcpy(PM[2].s_skill[1].name, "catchit");
-	PM[2].s_skill[1].damage = 100;
-	PM[2].s_skill[1].init_pp = 3;
-	PM[2].s_skill[1].left_pp = 3;
-	strcpy(PM[2].s_skill[2].name, "wind");
-	PM[2].s_skill[2].damage = 60;
-	PM[2].s_skill[2].init_pp = 4;
-	PM[2].s_skill[2].left_pp = 4;
-	strcpy(PM[2].s_skill[3].name, "scream");
-	PM[2].s_skill[3].damage = 65;
-	PM[2].s_skill[3].init_pp = 4;
-	PM[2].s_skill[3].left_pp = 4;
+	PM[2].s_skill[0] = g_s_pm_skills[0];
+	PM[2].s_skill[1] = g_s_pm_skills[4];
+	PM[2].s_skill[2] = g_s_pm_skills[5];
+	PM[2].s_skill[3] = g_s_pm_skills[6];
 
 
 
+	//敌方宝可梦
 	PM[3].x = 0;	//700
 	PM[3].y = 420;
 	PM[3].number = 3;
 	strcpy(PM[3].name, "自来也");
-	PM[3].level = 15;
+	PM[3].level = 17;
 	PM[3].experience = 0;
-	PM[3].bleed = 100;
-	PM[3].attack = 10;
-	PM[3].defence = 20;
+	PM[3].bleed = 120;
+	PM[3].attack = 20;
+	PM[3].defence = 15;
 	PM[3].judge = 1;
 	PM[3].time = 0;
-	strcpy(PM[3].s_skill[0].name, "sword");
-	PM[3].s_skill[0].damage = 70;
-	strcpy(PM[3].s_skill[1].name, "waterattack");
-	PM[3].s_skill[1].damage = 90;
-	strcpy(PM[3].s_skill[2].name, "firehigh");
-	PM[3].s_skill[2].damage = 80;
-	strcpy(PM[3].s_skill[3].name, "boom");
-	PM[3].s_skill[3].damage = 60;
+	PM[3].s_skill[0] = g_s_pm_skills[8];
+	PM[3].s_skill[1] = g_s_pm_skills[9];
+	PM[3].s_skill[2] = g_s_pm_skills[12];
+	PM[3].s_skill[3] = g_s_pm_skills[14];
+
+
+
+
+	PM[4].x = 0;
+	PM[4].y = 0;
+	PM[4].number = 4;
+	strcpy(PM[4].name, "Snorlax");
+	PM[4].level = 15;
+	PM[4].experience = 0;
+	PM[4].bleed = 90;
+	PM[4].attack = 20;
+	PM[4].defence = 20;
+	PM[4].judge = 0;
+	PM[4].time = 0;
+	PM[4].is_own = 0;
+	PM[4].is_change = 0;
+	PM[4].s_skill[0] = g_s_pm_skills[7];
+	PM[4].s_skill[1] = g_s_pm_skills[11];
+	PM[4].s_skill[2] = g_s_pm_skills[13];
+	PM[4].s_skill[3] = g_s_pm_skills[10];
+
 }

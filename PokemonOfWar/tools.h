@@ -26,6 +26,7 @@ void interface_change_animatio(int width, int high)
 	line(width / 2, high / 2, i, j);
 	FlushBatchDraw();
 	Sleep(500);
+	FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
 }
 
 
