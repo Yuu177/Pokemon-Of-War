@@ -4,7 +4,7 @@
 *	编译环境：vc2017 + EasyX_20200109(beta)
 *	Maker：	  panyu.tan
 *	最初版本：2020/2/7
-*	最后修改：2020/2/24
+*	最后修改：2020/2/26
 *******************************************/
 
 #include <graphics.h>
@@ -43,6 +43,9 @@ int   g_map_y;
 int g_game_state = 0;					//0为初始菜单界面，1为游戏界面
 int g_plot = 0;							//剧情判断
 int g_is_win = 0;						//战斗胜利判断，0未loss，1未win
+
+time_t g_time_start, g_time_end;		//计算通关游戏时间
+
 
 //npc坐标
 //右下角女孩
@@ -201,7 +204,8 @@ void burrow_map();
 
 //////////////剧情和对话////////////
 void judge_plot_and_talk(int player_x, int player_y, enum Map e_map);	//判读是否进入剧情或者和npc对话
-
+void beginning_of_plot();												//开始游戏剧情
+void end_of_plot();														//游戏结束动画
 void plot_1();
 void plot_2();
 void plot_3();
@@ -544,6 +548,8 @@ void startup_npc()
 
 
 
+
+
 void npc_drom_talk1()
 {
 	show_dialog_box_words(_T("小七:"), _T("歪比歪比？歪比巴布"), _T("are u good 马拉西亚？"));
@@ -597,8 +603,10 @@ void npc_office_talk2()
 
 void npc_sec_office_talk1()
 {
-	show_dialog_box_words(_T("教务秘书:"), _T("...算你厉害"), _T("成功上交论文（求饶）"));
-	show_dialog_box_words(_T("Master:"), _T("恭喜你通关游戏，感谢你的游玩"), _T("有什么bug或者不合理的地方你可以反馈给我"));
+	show_dialog_box_words(_T("教务秘书:"), _T("...算你厉害"), _T("把你的论文给我吧（求饶）"));
+	HWND wnd = GetHWnd();
+	if (MessageBox(wnd, _T("是否上交论文？ \n上交论文游戏会结束通关"), _T("提示"), MB_YESNO | MB_ICONQUESTION) == IDYES)
+		end_of_plot();
 }
 
 void npc_sec_office_talk2()
@@ -641,7 +649,7 @@ void npc_green_takl3()
 	lstrcatW(w_year, _T("分"));
 
 	show_dialog_box_words(_T("green girl:"), _T("你知道吗"), _T("这个游戏的最初版本时间是2020年2月7日"));
-	show_dialog_box_words(_T("green girl:"), _T("最后修改是2020年2月24日"), _T("时间真快"));
+	show_dialog_box_words(_T("green girl:"), _T("最后修改是2020年2月26日"), _T("时间真快"));
 	show_dialog_box_words(_T("green girl:"), _T("而现在是"), w_year);
 }
 
@@ -671,12 +679,55 @@ void npc_ys_talk1()
 
 
 
+void beginning_of_plot()
+{
+	setbkcolor(BLACK);
+	cleardevice();
+	show_dialog_box_words(_T(""), _T("2020年，这是一个宠物小精灵和人类和平相处的年代"), _T("人们通过用自己的小精灵与别人对战获得乐趣"));
+	show_dialog_box_words(_T(""), _T("话说天下u盘"), _T("分久必合，合久必分"));
+	show_dialog_box_words(_T(""), _T("刚到学校，u盘就丢了"), _T("真是麻烦的一天，论文还存在u盘里面"));
+	show_dialog_box_words(_T(""), _T("毕业论文今天就要上交纸质版，"), _T("我得赶紧找到u盘，不然不用毕业"));
+}
+
+
+
+void end_of_plot()
+{
+	music_end();
+	g_time_end = time(NULL);
+	TCHAR w_time[30];
+	TCHAR w_showtime[50] = _T("通关时间：");
+	double time = difftime(g_time_end, g_time_start) / 60;
+	wsprintf(w_time, _T("%d"), time);
+	lstrcat(w_showtime, w_time);
+	lstrcat(w_showtime, _T("分钟"));
+	int y;
+	for (y = 600; y > -325; y--)
+	{
+		setbkcolor(BLACK);
+		cleardevice();
+		startup_font(25, 0, WHITE);
+		outtextxy(270, y, _T("感谢你玩我的游戏"));
+		outtextxy(270, y + 50, w_showtime);
+		outtextxy(270, y + 100, _T("英文名称：Pokemon Of War"));
+		outtextxy(270, y + 150, _T("中文名称：战争里的口袋妈妈"));
+		outtextxy(270, y + 200, _T("图片素材来源：网络"));
+		outtextxy(270, y + 250, _T("bgm来源：网络"));
+		outtextxy(270, y + 300, _T("游戏设计：panyu.tan"));
+		outtextxy(270, y + 350, _T("游戏开发：panyu.tan"));
+		outtextxy(330, y + 4000, _T("ＴＨＥ　ＥＮＤ"));
+		FlushBatchDraw();
+		Sleep(30);
+	}
+}
+
+
 
 void plot_1()
 {
 	show_dialog_box_words(_T("小七:"), _T("你保存有论文的u盘丢了？"), _T("坏起来了..."));
 	show_dialog_box_words(_T("小七:"), _T("......"), _T("那去校园路上问问别人有没有捡到吧"));
-	show_dialog_box_words(_T("小七:"), _T("如果有什么不懂的地方可以回来问我"), _T("come on"));
+	show_dialog_box_words(_T("小七:"), _T("如果有什么不懂的地方可以回来问我"), _T("加油"));
 }
 
 
@@ -1181,6 +1232,7 @@ void into_map(int p_x, int p_y, int out_x, int out_y, TCHAR *map_path, int(*canv
 
 void start_menu()
 {
+	g_time_start = time(NULL);
 	music_start();
 	int y = 205;
 	while (g_game_state == 0)
@@ -1235,6 +1287,7 @@ void start_menu()
 			}
 		}
 	}
+	beginning_of_plot();
 }
 
 
@@ -2467,7 +2520,7 @@ void startup_pokemon()
 
 
 	//敌方宝可梦
-	PM[1].x = 367;  //367
+	PM[1].x = 0;  //367
 	PM[1].y = 420;
 	PM[1].number = 1;
 	strcpy(PM[1].name, "Entei");

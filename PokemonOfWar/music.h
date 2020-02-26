@@ -14,6 +14,7 @@ void music_victory();
 void music_defeat();
 void music_get();
 void startup_skill_music();	//初始化宝可梦技能的音效
+void music_end();
 
 
 void music_choose()
@@ -130,6 +131,7 @@ void music_get()
 	mciSendString(_T("play getmusic"), NULL, 0, NULL);
 }
 
+
 void startup_skill_music()
 {
 	mciSendString(_T("open 资源文件\\music\\十万伏特.mp3 alias sk1"), NULL, 0, NULL);
@@ -137,4 +139,15 @@ void startup_skill_music()
 	mciSendString(_T("open 资源文件\\music\\电磁波.mp3 alias sk3"), NULL, 0, NULL);
 	mciSendString(_T("open 资源文件\\music\\打雷.mp3 alias sk4"), NULL, 0, NULL);
 	mciSendString(_T("open 资源文件\\music\\剑雨.mp3 alias enemy_1"), NULL, 0, NULL);
+}
+
+
+void music_end()
+{
+	mciSendString(_T("close bkmusic1"), NULL, 0, NULL);
+	mciSendString(_T("close bkmusic2"), NULL, 0, NULL);
+	mciSendString(_T("close bkmusic3"), NULL, 0, NULL);
+	mciSendString(_T("close bkmusic3"), NULL, 0, NULL);
+	mciSendString(_T("open 资源文件\\music\\结束音乐.mp3 alias endmusic"), NULL, 0, NULL);
+	mciSendString(_T("play endmusic"), NULL, 0, NULL);
 }
