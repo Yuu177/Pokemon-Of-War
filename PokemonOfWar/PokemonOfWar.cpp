@@ -410,8 +410,9 @@ void readRecordFile()
 	fp = fopen("资源文件\\save\\gamedata.dat", "r");
 	if (fp != NULL)
 	{
-		fscanf(fp, "%d %d %d %d %d %d %d %d %d %d %d",
-			&g_map_x, &g_map_y, &g_player_x, &g_player_y, &g_player_picture_i, &g_player_picture_j, &g_plot,
+		fscanf(fp, "%d %d %d %d %d %d %d %d %d %d %d %d",
+			&g_map_x, &g_map_y, &g_player_x, &g_player_y, &g_player_picture_i, &g_player_picture_j, 
+			&g_plot, &g_time_start,
 			&struct_player.s_good[0].left, &struct_player.s_good[1].left,
 			&struct_player.s_good[2].left, &struct_player.s_good[3].left);
 	}
@@ -435,8 +436,9 @@ void writeRecordFile()
 	fp = fopen("资源文件\\save\\gamedata.dat", "w");
 	if (fp != NULL)
 	{
-		fprintf(fp, "%d %d %d %d %d %d %d %d %d %d %d",
-			g_map_x, g_map_y, g_player_x, g_player_y, g_player_picture_i, g_player_picture_j, g_plot,
+		fprintf(fp, "%d %d %d %d %d %d %d %d %d %d %d %d",
+			g_map_x, g_map_y, g_player_x, g_player_y, g_player_picture_i, g_player_picture_j, 
+			g_plot, g_time_start,
 			struct_player.s_good[0].left, struct_player.s_good[1].left,
 			struct_player.s_good[2].left, struct_player.s_good[3].left);
 	}
@@ -697,12 +699,13 @@ void end_of_plot()
 	g_time_end = time(NULL);
 	TCHAR w_time[30];
 	TCHAR w_showtime[50] = _T("通关时间：");
-	double time = difftime(g_time_end, g_time_start) / 60;
-	wsprintf(w_time, _T("%d"), time);
+	double time = difftime(g_time_end, g_time_start);
+	int t = time / 60;
+	wsprintf(w_time, _T("%d"), t);
 	lstrcat(w_showtime, w_time);
 	lstrcat(w_showtime, _T("分钟"));
 	int y;
-	for (y = 600; y > -325; y--)
+	for (y = 600; y > -425; y--)
 	{
 		setbkcolor(BLACK);
 		cleardevice();
@@ -715,10 +718,13 @@ void end_of_plot()
 		outtextxy(270, y + 250, _T("bgm来源：网络"));
 		outtextxy(270, y + 300, _T("游戏设计：panyu.tan"));
 		outtextxy(270, y + 350, _T("游戏开发：panyu.tan"));
-		outtextxy(330, y + 4000, _T("ＴＨＥ　ＥＮＤ"));
+		outtextxy(330, y + 400, _T("THE END"));
 		FlushBatchDraw();
 		Sleep(30);
 	}
+	HWND wnd = GetHWnd();
+	MessageBox(wnd, _T("结束游戏"), _T("看完了"), MB_OK | MB_ICONWARNING);
+	exit(0);
 }
 
 
@@ -736,7 +742,7 @@ void plot_2()
 	show_dialog_box_words(_T("小张:"), _T("什么？你的u盘丢了？"), _T("你也太不小心了"));
 	show_dialog_box_words(_T("小张:"), _T("你去失误招领处看看"), _T("说不定有人捡到放在那里了"));
 	show_dialog_box_words(_T("小张:"), _T("失误招领在哪里吗？"), _T("你上了四年学居然不知道......"));
-	show_dialog_box_words(_T("小张:"), _T("在山洞里！"), _T("路上小心！"));
+	show_dialog_box_words(_T("小张:"), _T("其实我也不知道！"), _T("路上小心！"));
 }
 
 void plot_3()
@@ -763,7 +769,7 @@ void plot_6()
 
 void plot_7()
 {
-	show_dialog_box_words(_T("教务秘书:"), _T("“山有木兮木有枝...”"), _T("在天愿做比翼鸟..."));
+	show_dialog_box_words(_T("教务秘书:"), _T("“山有木兮木有枝...”"), _T("“在天愿做比翼鸟...”"));
 	show_dialog_box_words(_T("教务秘书:"), _T("没看到我正在和我男朋友打电话吗？"), _T("你不用毕业了，收拾一下回家吧"));
 	show_dialog_box_words(_T("教务秘书:"), _T("想要交论文？？？"), _T("那我有空的时候怎么不来"));
 	show_dialog_box_words(_T("教务秘书:"), _T("还敢顶嘴"), _T("敬酒不喝喝罚酒"));
@@ -877,11 +883,14 @@ void judge_plot_and_talk(int player_x ,int player_y, enum Map e_map)
 					music_fight2();
 					show_fight(&struct_player.s_pokemons[0], &PM[3]);	//触发剧情，进入战斗
 					if (g_is_win == 1)
-						g_plot = 7;
-					else
 					{
-						music_bk3();
+						g_plot = 7;
+						music_bk4();
 					}
+					else
+						music_bk3();
+						
+					
 				}
 				else if (g_plot >= 7)
 					npc_sec_office_talk1();
@@ -1273,21 +1282,28 @@ void start_menu()
 			if (input == 'j')
 			{
 				music_next();
-				if (y == 205)	g_game_state = 1;
+				if (y == 205)
+				{
+					g_game_state = 1;
+					beginning_of_plot();
+					music_bk1();
+				}
 				if (y == 255)
 				{
 					readRecordFile();
 					g_game_state = 1;
+					music_bk1();
 				}
-				if (y == 305)	g_game_state = 3;
+				if (y == 305)
+				{
+					show_dialog_box_words(_T("游戏助手："), _T("J为确认，K为返回"), _T("W A S D 控制方向"));
+				}
 				//1.exit(1)表示异常退出, 在退出前可以给出一些提示信息或在调试程序中察看出错原因。
 				//2.exit(0)表示正常退出。
 				if (y == 355)	exit(0);
-				music_bk1();
 			}
 		}
 	}
-	beginning_of_plot();
 }
 
 
@@ -1820,36 +1836,16 @@ void fight_operation_interface(int *x, int *y, int *fight_choose, TCHAR show_str
 				if (*fight_choose == 1)	//判断pp剩余时候才能使用技能 && own_pm->s_skill[0].left_pp > 0
 				{
 					skill_operate(own_pm, enemy_pm, enemy_now_bleed, &own_pm->s_skill[0], fight_turn, fight_choose);
-					
-					//own_pm->s_skill[0].left_pp--;
-					//pm_attack_pm(own_pm, enemy_pm, own_pm->s_skill[0].name, own_pm->s_skill[0].damage, enemy_now_bleed);
-					//操作完轮到对方回合
-					//*fight_turn = 0;
-					//每一回合都要返回准备界面
-					//*fight_choose = 0;
 				}
 					
 				else if (*fight_choose == 2) //&& struct_player.s_good[0].left > 0
 				{
 					//使用了xx，xx回复了xx点生命
 					bleed_good_operate(own_pm, own_now_bleed, &struct_player.s_good[0], fight_turn, fight_choose);
-					//show_use_good_words(own_pm->name, struct_player.s_good[0].name, struct_player.s_good[0].add, "生命值");
-					//*own_now_bleed += struct_player.s_good[0].add;
-					//struct_player.s_good[0].left--;
-					//*fight_turn = 0;
-					//*fight_choose = 0;
-					//goods_details(*x, *y);
 				}
 				else if (*fight_choose == 3)//&& struct_player.s_pokemons[0].is_own == 1 && struct_player.s_pokemons[0].is_change == 1
 				{
 					pokemon_operate(own_pm, own_now_bleed, &struct_player.s_pokemons[0], fight_turn, fight_choose);
-					/*show_change_pokemon_words(own_pm->name, struct_player.s_pokemons[0].name);
-					struct_player.s_pokemons[0].is_change = 0; //交换完宝可梦，该宝可梦的is_change设置为0
-					*own_pm = struct_player.s_pokemons[0];
-					*own_now_bleed = struct_player.s_pokemons[0].bleed;
-					*fight_turn = 0;
-					*fight_choose = 0;*/
-					//pokemons_details(*x, *y);
 				}
 			}
 
@@ -1858,33 +1854,15 @@ void fight_operation_interface(int *x, int *y, int *fight_choose, TCHAR show_str
 				if (*fight_choose == 1)// && own_pm->s_skill[1].left_pp > 0
 				{
 					skill_operate(own_pm, enemy_pm, enemy_now_bleed, &own_pm->s_skill[1], fight_turn, fight_choose);
-					//own_pm->s_skill[1].left_pp--;
-					//pm_attack_pm(own_pm, enemy_pm, own_pm->s_skill[1].name, own_pm->s_skill[1].damage, enemy_now_bleed);
-					//*fight_turn = 0;
-					//*fight_choose = 0;
-					//skills_details(*x, *y, own_pm);
 				}
 					
 				else if	(*fight_choose == 2)// && struct_player.s_good[1].left > 0
 				{
 					bleed_good_operate(own_pm, own_now_bleed, &struct_player.s_good[1], fight_turn, fight_choose);
-					//show_use_good_words(own_pm->name, struct_player.s_good[1].name, struct_player.s_good[1].add, "生命值");
-					//*own_now_bleed += struct_player.s_good[1].add;
-					//struct_player.s_good[1].left--;
-					//*fight_turn = 0;
-					//*fight_choose = 0;
-					//goods_details(*x, *y);
 				}
 				else if (*fight_choose == 3)//&& struct_player.s_pokemons[1].is_own == 1 && struct_player.s_pokemons[1].is_change == 1
 				{
 					pokemon_operate(own_pm, own_now_bleed, &struct_player.s_pokemons[1], fight_turn, fight_choose);
-					/*show_change_pokemon_words(own_pm->name, struct_player.s_pokemons[1].name);
-					struct_player.s_pokemons[1].is_change = 0; //交换完宝可梦，该宝可梦的is_change设置为0
-					*own_pm = struct_player.s_pokemons[1];
-					*own_now_bleed = struct_player.s_pokemons[1].bleed;
-					*fight_turn = 0;
-					*fight_choose = 0;*/
-					//pokemons_details(*x, *y);
 				}
 			}
 
@@ -1893,32 +1871,14 @@ void fight_operation_interface(int *x, int *y, int *fight_choose, TCHAR show_str
 				if (*fight_choose == 1)// && own_pm->s_skill[2].left_pp > 0
 				{
 					skill_operate(own_pm, enemy_pm, enemy_now_bleed, &own_pm->s_skill[2], fight_turn, fight_choose);
-					//own_pm->s_skill[2].left_pp--;
-					//pm_attack_pm(own_pm, enemy_pm, own_pm->s_skill[2].name, own_pm->s_skill[2].damage, enemy_now_bleed);
-					//*fight_turn = 0;
-					//*fight_choose = 0;
-					//skills_details(*x, *y, own_pm);
 				}
 				else if (*fight_choose == 2)// && struct_player.s_good[2].left > 0
 				{
 					bleed_good_operate(own_pm, own_now_bleed, &struct_player.s_good[2], fight_turn, fight_choose);
-					/*show_use_good_words(own_pm->name, struct_player.s_good[2].name, struct_player.s_good[2].add, "生命值");
-					*own_now_bleed += struct_player.s_good[2].add;
-					struct_player.s_good[2].left--;
-					*fight_turn = 0;
-					*fight_choose = 0;*/
-					//goods_details(*x, *y);
 				}
 				else if (*fight_choose == 3)// && struct_player.s_pokemons[2].is_own == 1 && struct_player.s_pokemons[2].is_change == 1
 				{
 					pokemon_operate(own_pm, own_now_bleed, &struct_player.s_pokemons[2], fight_turn, fight_choose);
-					/*show_change_pokemon_words(own_pm->name, struct_player.s_pokemons[2].name);
-					struct_player.s_pokemons[2].is_change = 0; //交换完宝可梦，该宝可梦的is_change设置为0
-					*own_pm = struct_player.s_pokemons[2];
-					*own_now_bleed = struct_player.s_pokemons[2].bleed;
-					*fight_turn = 0;
-					*fight_choose = 0;*/
-					//pokemons_details(*x, *y);
 				}
 			}
 
@@ -1927,35 +1887,14 @@ void fight_operation_interface(int *x, int *y, int *fight_choose, TCHAR show_str
 				if (*fight_choose == 1)//&& own_pm->s_skill[3].left_pp > 0
 				{
 					skill_operate(own_pm, enemy_pm, enemy_now_bleed, &own_pm->s_skill[3], fight_turn, fight_choose);
-					//own_pm->s_skill[3].left_pp--;
-					//pm_attack_pm(own_pm, enemy_pm, own_pm->s_skill[3].name, own_pm->s_skill[3].damage, enemy_now_bleed);
-					//*fight_turn = 0;
-					//*fight_choose = 0;
-					//skills_details(*x, *y, own_pm);
 				}
 				else if (*fight_choose == 2)//&& struct_player.s_good[3].left > 0
 				{
 					pp_good_operate(own_pm, &struct_player.s_good[3], fight_turn, fight_choose);
-					/*show_use_good_words(own_pm->name, struct_player.s_good[3].name, struct_player.s_good[3].add, "技能点");
-					for (int i = 0; i < 4; i++)
-					{
-						own_pm->s_skill[i].left_pp += struct_player.s_good[3].add;
-						if (own_pm->s_skill[i].left_pp > own_pm->s_skill[i].init_pp)
-							own_pm->s_skill[i].left_pp = own_pm->s_skill[i].init_pp;
-					}
-					struct_player.s_good[3].left--;
-					*fight_turn = 0;
-					*fight_choose = 0;*/
 				}
 				else if (*fight_choose == 3)// && struct_player.s_pokemons[3].is_own == 1 && struct_player.s_pokemons[3].is_change == 1
 				{
 					pokemon_operate(own_pm, own_now_bleed, &struct_player.s_pokemons[3], fight_turn, fight_choose);
-					/*show_change_pokemon_words(own_pm->name, struct_player.s_pokemons[3].name);
-					struct_player.s_pokemons[3].is_change = 0; //交换完宝可梦，该宝可梦的is_change设置为0
-					*own_pm = struct_player.s_pokemons[3];
-					*own_now_bleed = struct_player.s_pokemons[3].bleed;
-					*fight_turn = 0;
-					*fight_choose = 0;*/
 				}
 			}
 		}
@@ -2564,9 +2503,9 @@ void startup_pokemon()
 	strcpy(PM[3].name, "自来也");
 	PM[3].level = 17;
 	PM[3].experience = 0;
-	PM[3].bleed = 120;
-	PM[3].attack = 20;
-	PM[3].defence = 15;
+	PM[3].bleed = 100;
+	PM[3].attack = 18;
+	PM[3].defence = 13;
 	PM[3].judge = 1;
 	PM[3].time = 0;
 	PM[3].s_skill[0] = g_s_pm_skills[8];
@@ -2583,7 +2522,7 @@ void startup_pokemon()
 	strcpy(PM[4].name, "Snorlax");
 	PM[4].level = 15;
 	PM[4].experience = 0;
-	PM[4].bleed = 90;
+	PM[4].bleed = 80;
 	PM[4].attack = 20;
 	PM[4].defence = 20;
 	PM[4].judge = 0;
