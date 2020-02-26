@@ -24,7 +24,6 @@ void scream()//尖叫skill,在己方宝可梦前显示
 {
 	mciSendString(_T("Seek sk2 to start"), NULL, 0, NULL);
 	mciSendString(_T("play sk2"), NULL, 0, NULL);
-
 	IMAGE im7, im8;
 	loadimage(&im7, _T("资源文件\\skill\\尖叫.jpg"), 70, 220);
 	loadimage(&im8, _T("资源文件\\skill\\尖叫bk.jpg"), 70, 220);
@@ -151,7 +150,6 @@ void catchit() //电牢
 	putimage(500, 120, &im15, SRCINVERT);
 	FlushBatchDraw();
 	Sleep(500);
-	//mciSendString(_T("close enemy_1"), NULL, 0, NULL);
 }
 
 
@@ -161,15 +159,12 @@ void catchit() //电牢
 void eat()
 {
 	IMAGE im9, im10;
-	mciSendString(_T("Seek enemy_7 to start"), NULL, 0, NULL);
-	mciSendString(_T("play enemy_7"), NULL, 0, NULL);
 	loadimage(&im9, _T("资源文件\\skill\\撕咬.jpg"));
 	loadimage(&im10, _T("资源文件\\skill\\撕咬bk.jpg"));
 	putimage(500, 100, &im10, NOTSRCERASE);
 	putimage(500, 100, &im9, SRCINVERT);
 	FlushBatchDraw();
 	Sleep(500);
-	//mciSendString(_T("close enemy_7"), NULL, 0, NULL);
 }
 
 
@@ -238,7 +233,6 @@ void waterattack()
 	putimage(165, 220, &im11, SRCINVERT);
 	FlushBatchDraw();
 	Sleep(500);
-	//	mciSendString(_T("close enemy_3"), NULL, 0, NULL);
 }
 
 
@@ -265,7 +259,7 @@ void sword()
 		putimage(x, y, &im11);
 	}
 	Sleep(500);
-	//mciSendString(_T("close enemy_4"), NULL, 0, NULL);
+	//mciSendString(_T("close enemy_1"), NULL, 0, NULL);
 }
 
 
@@ -295,9 +289,7 @@ void firehigh()
 	Sleep(200);
 	FlushBatchDraw();
 	Sleep(200);
-	//mciSendString(_T("close enemy_5"), NULL, 0, NULL);
 }
-
 
 
 
@@ -336,7 +328,6 @@ void musicattack()
 	putimage(160, 410, &im11, SRCINVERT);
 	FlushBatchDraw();
 	Sleep(500);
-	//	mciSendString(_T("close enemy_5"), NULL, 0, NULL);
 }
 
 
@@ -354,7 +345,6 @@ void lighton()
 	putimage(200, 300, &im5, SRCINVERT);
 	FlushBatchDraw();
 	Sleep(500);
-	//mciSendString(_T("close enemy_6"), NULL, 0, NULL);
 }
 
 
@@ -406,7 +396,6 @@ void star()
 	putimage(200, 400, &im5, SRCINVERT);
 	FlushBatchDraw();
 	Sleep(500);
-	//	mciSendString(_T("close enemy_1"), NULL, 0, NULL);
 }
 
 
@@ -432,5 +421,4 @@ void windattack()
 		putimage(x, y, &im11);
 	}
 	Sleep(500);
-	//mciSendString(_T("close enemy_2"), NULL, 0, NULL);
 }

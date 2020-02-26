@@ -1,3 +1,9 @@
+void CharToTchar(const char *, TCHAR *);					//char 类型 转换为 TCHAR
+void interface_change_animatio(int, int);					//场景切换动画，进入战斗时和战斗结束
+void transparentimage(IMAGE *, int, int, IMAGE *, UINT);	//指定透明色贴图
+
+
+
 //char 转换为 tchar
 void CharToTchar(const char * _char, TCHAR * tchar)
 {

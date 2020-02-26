@@ -21,7 +21,7 @@
 
 
 ///////////////宏定义///////////////
-#define WINDOWS_WIDTH 800			
+#define WINDOWS_WIDTH 800				
 #define WINDOWS_HIGH 600
 #define PLAYER_WIDTH 32
 #define PLAYER_HIGH 50					//这个高度人物的头顶会多出5个像素
@@ -29,7 +29,7 @@
 #define NPC_NUMBER 10
 
 
-///////////////全局变量/////////////////
+///////////////全局变量////////////////
 int	  g_canvas[1281][881] = { 0 };		//定义地图画布坐标,使每个像素点坐标为0，0为无障碍，1为有障碍不能通过
 IMAGE g_img_city_map;					//1280*880
 IMAGE g_img_player_walk;
@@ -88,6 +88,7 @@ struct good
 	int add;
 };
 
+//npc
 struct Npc
 {
 	int x;
@@ -106,6 +107,7 @@ struct skill
 }g_s_pm_skills[15];
 
 
+//宝可梦
 struct pokemon
 {
 	int  x;								//宝可梦在地图的位置
@@ -125,7 +127,7 @@ struct pokemon
 }PM[POKEMON_NUMBER];
 
 
-
+//游戏玩家
 struct player
 {
 	//携带的物品
@@ -139,65 +141,67 @@ struct player
 
 
 ///////////////函数声明//////////////////
-void starup_map_and_player_position();
-void show_map();
+void startup_gamegraph();												//初始化游戏窗口和字体
+void starup_map_and_player_position();									//初始化地图和人物的位置
+void show_map();														//绘画地图
 void gameover();
-void keyboard_operation();
-void transparentimage(IMAGE *, int, int, IMAGE *, UINT);	//指定透明色贴图
-void interface_change_animatio(int, int);
-void is_fight();
-void show_fight(pokemon *, pokemon *);
-void startup_pokemon();
-void show_dialog_box_words(TCHAR*, TCHAR*, TCHAR*);
-void CharToTchar(const char *, TCHAR *);
+void keyboard_operation();												//在大地图上的键盘操作
+void is_fight();														//判断在地图上是否遭遇敌人，然后进入战斗
+void show_fight(pokemon *, pokemon *);									//进入战斗
+void startup_pokemon();													//初始化宝可梦属性
+void show_dialog_box_words(TCHAR*, TCHAR*, TCHAR*);						//对话框
+//战斗准备时候的操作
 void fight_operation_interface(int *, int *, int *, TCHAR[][20], pokemon *, pokemon *, int *, int *, int *);
-void use_skill(char *);
-void fight_interface(pokemon *, int *, int, pokemon *, int *, int);
-void pm_attack_pm(pokemon *, pokemon *, char *, int , int *);
-void show_use_skill_words(char *, char *);
-void show_use_good_words(char *, char *, int, char *);
-void show_change_pokemon_words(char *, char *);
-void show_damage_words(int);
-void startup_font(int, int, COLORREF);
-void load_pokemon_picture(pokemon *, int, int);
-void pokemons_refresh();
-void skills_details(int, int, pokemon *);
-void goods_details(int, int);
-void pokemons_details(int, int);
-void start_menu();
-void startup_player();
-void pokemon_operate(pokemon *, int *, pokemon *, int *, int *);
-void pp_good_operate(pokemon *, struct good *, int *, int *);
-void bleed_good_operate(pokemon *, int *, struct good *, int *, int *);
-void skill_operate(pokemon *, pokemon *, int *, struct skill *, int *, int *);
-void miss_enemy_words(pokemon *);
-void enemy_fight_turn(pokemon *, pokemon *, int *, int *);
-void own_fight_turn(int *, int *, int *, int *);
-int  calculate_bleed(int *, pokemon *, int);
-void recovery_pp();
-void next_step();
-void startup_struct_skill();
-
-
+void use_skill(char *);													//使用技能
+void fight_interface(pokemon *, int *, int, pokemon *, int *, int);		//战斗开始界面绘画封住函数
+void pm_attack_pm(pokemon *, pokemon *, char *, int , int *);			//宝可梦攻击
+void show_use_skill_words(char *, char *);								//使用技能时显示的文字描述
+void show_use_good_words(char *, char *, int, char *);					//使用物品显示的文字描述
+void show_change_pokemon_words(char *, char *);							//替换宝可梦显示的文字描述
+void show_damage_words(int);											//显示技能造成伤害的文字描述
+void startup_font(int, int, COLORREF);									//初始化字体
+void load_pokemon_picture(pokemon *, int, int);							//载入宝可梦的图片
+void pokemons_refresh();												//刷新宝可梦
+void skills_details(int, int, pokemon *);								//选择技能的时候在右边显示技能详细信息
+void goods_details(int, int);											//显示物品的详细信息
+void pokemons_details(int, int);										//显示宝可梦的详细信息
+void start_menu();														//开始界面
+void startup_player();													//初始化玩家
+void pokemon_operate(pokemon *, int *, pokemon *, int *, int *);		//替换宝可梦操作
+void pp_good_operate(pokemon *, struct good *, int *, int *);			//使用pp药剂操作
+void bleed_good_operate(pokemon *, int *, struct good *, int *, int *);	//使用回复生命值药剂操作
+//使用技能操作
+void skill_operate(pokemon *, pokemon *, int *, struct skill *, int *, int *);	
+void miss_enemy_words(pokemon *);										//遇到敌人时候，显示对话
+void enemy_fight_turn(pokemon *, pokemon *, int *, int *);				//敌人攻击回合
+void own_fight_turn(int *, int *, int *, int *);						//我方攻击回合
+int  calculate_bleed(int *, pokemon *, int);							//计算血量
+void recovery_pp();														//恢复pp
+void next_step();														//下一步，按一下确认键
+void startup_struct_skill();											//初始化宝可梦技能
+void startup_npc();														//初始化npc位置
 
 //读档和存档的函数
 void readRecordFile();
 void writeRecordFile();
 
 
-//地图
-void judge_into_map();
-void into_map(int, int, int, int, TCHAR * ,int (*)[600], int, int, int, int, TCHAR *, enum Map e_map);
+/////////////////////地图///////////////////
+void judge_into_map();													//判断是否进入其他地图
+//进入地图
+void into_map(int, int, int, int, TCHAR * ,int (*)[600], int, int, int, int, TCHAR *, enum Map e_map); 
+//进入地图后的键盘操作
 void into_map_keyboard_operation(int(*)[600], int *, int *, int, int, int, int, enum Map e_map);
-void dorm_map();
+void dorm_map();														//地图详细
 void hospital_map();
 void office_map();
 void shop_map();
 void sec_office_map();
 void burrow_map();
 
-//剧情
-void judge_plot_and_talk(int player_x, int player_y, enum Map e_map);
+//////////////剧情和对话////////////
+void judge_plot_and_talk(int player_x, int player_y, enum Map e_map);	//判读是否进入剧情或者和npc对话
+
 void plot_1();
 void plot_2();
 void plot_3();
@@ -205,9 +209,9 @@ void plot_4();
 void plot_5();
 void plot_6();
 void plot_7();
-void get_thing(TCHAR *);
+void get_thing(TCHAR *);												//显示获得物品
 
-void npc_drom_talk1();
+void npc_drom_talk1();													//npc对话内容
 void npc_zhang_talk1();
 void npc_zhang_talk2();
 void npc_burrow_talk1();
@@ -224,6 +228,41 @@ void npc_green_takl3();
 void npc_hospital_talk1();
 void npc_kk_talk1();
 void npc_ys_talk1();
+
+
+
+int main(void)
+{
+	startup_gamegraph();
+	startup_struct_skill();
+	startup_skill_music();
+	startup_npc();
+	startup_pokemon();
+	startup_player();					//player里包含宝可梦，所以需要先初始化宝可梦再初始化player
+	starup_map_and_player_position();
+	start_menu();						//需要先初始化窗口才能够对背景，字体等操作
+	while (1)
+	{
+		show_map();
+		judge_into_map();
+		is_fight();
+		pokemons_refresh();
+		keyboard_operation();
+	}
+	gameover();
+	return 0;
+}
+
+
+
+
+void startup_gamegraph()
+{
+	initgraph(WINDOWS_WIDTH, WINDOWS_HIGH);
+	//初始化字体
+	startup_font(25, 0, BLACK);
+	BeginBatchDraw();
+}
 
 
 
@@ -312,15 +351,6 @@ void startup_struct_skill()
 
 
 
-void load_skill_music()
-{
-	mciSendString(_T("open 资源文件\\音乐\\十万伏特.mp3 alias sk1"), NULL, 0, NULL);
-	mciSendString(_T("open 资源文件\\音乐\\尖叫.mp3 alias sk2"), NULL, 0, NULL);
-	mciSendString(_T("open 资源文件\\音乐\\电磁波.mp3 alias sk3"), NULL, 0, NULL);
-	mciSendString(_T("open 资源文件\\音乐\\打雷.mp3 alias sk4"), NULL, 0, NULL);
-	mciSendString(_T("open 资源文件\\音乐\\武器相交.mp3 alias enemy_1"), NULL, 0, NULL);
-}
-
 
 
 void get_thing(TCHAR *w_good_name)
@@ -328,6 +358,9 @@ void get_thing(TCHAR *w_good_name)
 	music_get();
 	show_dialog_box_words(_T(""), _T("得到了"), w_good_name);
 }
+
+
+
 
 
 void next_step()
@@ -349,6 +382,8 @@ void next_step()
 
 
 
+
+
 void recovery_pp()
 {
 	for (int i = 0; i < 4; i++)
@@ -359,6 +394,8 @@ void recovery_pp()
 		}
 	}
 }
+
+
 
 
 
@@ -383,6 +420,7 @@ void readRecordFile()
 	}
 	fclose(fp);
 }
+
 
 
 
@@ -434,6 +472,7 @@ void startup_player()
 	struct_player.s_pokemons[0] = PM[0];
 	struct_player.s_pokemons[1] = PM[2];
 }
+
 
 
 
@@ -2289,8 +2328,6 @@ void starup_canvas()
 
 void starup_map_and_player_position()
 {
-	initgraph(WINDOWS_WIDTH, WINDOWS_HIGH);
-
 	loadimage(&g_img_city_map, _T("资源文件\\maps\\school2.png"));
 	g_map_x = 0;
 	g_map_y = 0;
@@ -2300,11 +2337,6 @@ void starup_map_and_player_position()
 	g_player_picture_i = g_player_picture_j = 0;
 	g_player_x = 150;
 	g_player_y = 395;
-
-	//初始化字体
-	startup_font(25, 0, BLACK);
-
-	BeginBatchDraw();
 }
 
 
@@ -2413,34 +2445,6 @@ void gameover()
 
 
 
-int main(void)
-{
-	startup_struct_skill();
-	load_skill_music();
-	startup_npc();
-	startup_pokemon();
-	//player里包含宝可梦，所以需要先初始化宝可梦再初始化player
-	startup_player();
-	//初始化地图和player的位置
-	starup_map_and_player_position();
-	//需要先初始化窗口才能够对背景，字体等操作
-	start_menu();
-	while (1)
-	{
-		show_map();
-		judge_into_map();
-		is_fight();
-		pokemons_refresh();
-		keyboard_operation();
-	}
-	gameover();
-	return 0;
-}
-
-
-
-
-
 void startup_pokemon()
 {
 	PM[0].x = 0;
@@ -2463,7 +2467,7 @@ void startup_pokemon()
 
 
 	//敌方宝可梦
-	PM[1].x = 0;  //367
+	PM[1].x = 367;  //367
 	PM[1].y = 420;
 	PM[1].number = 1;
 	strcpy(PM[1].name, "Entei");
