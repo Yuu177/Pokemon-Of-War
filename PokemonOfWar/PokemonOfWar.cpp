@@ -4,7 +4,7 @@
 *	编译环境：vc2017 + EasyX_20200109(beta)
 *	Maker：	  panyu.tan
 *	最初版本：2020/2/7
-*	最后修改：2020/2/26
+*	最后修改：2020/2/27
 *******************************************/
 
 #include <graphics.h>
@@ -235,6 +235,11 @@ void npc_ys_talk1();
 
 
 
+
+
+
+/////////主函数//////////////
+
 int main(void)
 {
 	startup_gamegraph();
@@ -267,91 +272,6 @@ void startup_gamegraph()
 	startup_font(25, 0, BLACK);
 	BeginBatchDraw();
 }
-
-
-
-void startup_struct_skill()
-{
-	strcpy(g_s_pm_skills[0].name, "scream");
-	g_s_pm_skills[0].damage = 60;
-	g_s_pm_skills[0].init_pp = 5;
-	g_s_pm_skills[0].left_pp = 5;
-
-	strcpy(g_s_pm_skills[1].name, "lighting");
-	g_s_pm_skills[1].damage = 120;
-	g_s_pm_skills[1].init_pp = 2;
-	g_s_pm_skills[1].left_pp = 2;
-
-	strcpy(g_s_pm_skills[2].name, "flash");
-	g_s_pm_skills[2].damage = 70;
-	g_s_pm_skills[2].init_pp = 4;
-	g_s_pm_skills[2].left_pp = 4;
-
-	strcpy(g_s_pm_skills[3].name, "thunder");
-	g_s_pm_skills[3].damage = 80;
-	g_s_pm_skills[3].init_pp = 3;
-	g_s_pm_skills[3].left_pp = 3;
-
-
-	strcpy(g_s_pm_skills[4].name, "catchit");
-	g_s_pm_skills[4].damage = 85;
-	g_s_pm_skills[4].init_pp = 3;
-	g_s_pm_skills[4].left_pp = 3;
-
-	strcpy(g_s_pm_skills[5].name, "eat");
-	g_s_pm_skills[5].damage = 70;
-	g_s_pm_skills[5].init_pp = 4;
-	g_s_pm_skills[5].left_pp = 4;
-
-	strcpy(g_s_pm_skills[6].name, "wind");
-	g_s_pm_skills[6].damage = 65;
-	g_s_pm_skills[6].init_pp = 4;
-	g_s_pm_skills[6].left_pp = 4;
-
-
-	//敌人技能
-	strcpy(g_s_pm_skills[7].name, "boom");
-	g_s_pm_skills[7].damage = 60;
-	g_s_pm_skills[7].init_pp = 2;
-	g_s_pm_skills[7].left_pp = 2;
-
-	strcpy(g_s_pm_skills[8].name, "waterattack");
-	g_s_pm_skills[8].damage = 70;
-	g_s_pm_skills[8].init_pp = 5;
-	g_s_pm_skills[8].left_pp = 5;
-
-	strcpy(g_s_pm_skills[9].name, "sword");
-	g_s_pm_skills[9].damage = 80;
-	g_s_pm_skills[9].init_pp = 5;
-	g_s_pm_skills[9].left_pp = 5;
-
-	strcpy(g_s_pm_skills[10].name, "firehigh");
-	g_s_pm_skills[10].damage = 90;
-	g_s_pm_skills[10].init_pp = 5;
-	g_s_pm_skills[10].left_pp = 5;
-
-	strcpy(g_s_pm_skills[11].name, "musicattack");
-	g_s_pm_skills[11].damage = 65;
-	g_s_pm_skills[11].init_pp = 5;
-	g_s_pm_skills[11].left_pp = 5;
-
-	strcpy(g_s_pm_skills[12].name, "lighton");
-	g_s_pm_skills[12].damage = 100;
-	g_s_pm_skills[12].init_pp = 5;
-	g_s_pm_skills[12].left_pp = 5;
-
-	strcpy(g_s_pm_skills[13].name, "star");
-	g_s_pm_skills[13].damage = 85;
-	g_s_pm_skills[13].init_pp = 5;
-	g_s_pm_skills[13].left_pp = 5;
-
-	strcpy(g_s_pm_skills[14].name, "windattack");
-	g_s_pm_skills[14].damage = 75;
-	g_s_pm_skills[14].init_pp = 5;
-	g_s_pm_skills[14].left_pp = 5;
-
-}
-
 
 
 
@@ -566,7 +486,7 @@ void npc_zhang_talk1()
 
 void npc_zhang_talk2()
 {
-	show_dialog_box_words(_T("小张:"), _T("今天天气不错"), _T("不是吗"));
+	show_dialog_box_words(_T("小张:"), _T("今天天气不错"), _T("不是吗？"));
 	show_dialog_box_words(_T("小张:"), _T("毕业了去哪里吗"), _T("我想再去一遍海边"));
 }
 
@@ -650,8 +570,7 @@ void npc_green_takl3()
 	lstrcatW(w_year, w_min);
 	lstrcatW(w_year, _T("分"));
 
-	show_dialog_box_words(_T("green girl:"), _T("你知道吗"), _T("这个游戏的最初版本时间是2020年2月7日"));
-	show_dialog_box_words(_T("green girl:"), _T("最后修改是2020年2月26日"), _T("时间真快"));
+	show_dialog_box_words(_T("green girl:"), _T("时间真快,你知道吗"), _T("这个游戏的最初开发时间是2020年2月7日"));
 	show_dialog_box_words(_T("green girl:"), _T("而现在是"), w_year);
 }
 
@@ -705,20 +624,19 @@ void end_of_plot()
 	lstrcat(w_showtime, w_time);
 	lstrcat(w_showtime, _T("分钟"));
 	int y;
-	for (y = 600; y > -425; y--)
+	for (y = 600; y > -375; y--)
 	{
 		setbkcolor(BLACK);
 		cleardevice();
 		startup_font(25, 0, WHITE);
-		outtextxy(270, y, _T("感谢你玩我的游戏"));
-		outtextxy(270, y + 50, w_showtime);
-		outtextxy(270, y + 100, _T("英文名称：Pokemon Of War"));
-		outtextxy(270, y + 150, _T("中文名称：战争里的口袋妈妈"));
-		outtextxy(270, y + 200, _T("图片素材来源：网络"));
-		outtextxy(270, y + 250, _T("bgm来源：网络"));
-		outtextxy(270, y + 300, _T("游戏设计：panyu.tan"));
-		outtextxy(270, y + 350, _T("游戏开发：panyu.tan"));
-		outtextxy(330, y + 400, _T("THE END"));
+		outtextxy(270, y, w_showtime);
+		outtextxy(270, y + 50, _T("英文名称：Pokemon Of War"));
+		outtextxy(270, y + 100, _T("中文名称：战争里的口袋妈妈"));
+		outtextxy(270, y + 150, _T("图片素材来源：网络"));
+		outtextxy(270, y + 200, _T("bgm来源：网络"));
+		outtextxy(270, y + 250, _T("游戏设计：panyu.tan"));
+		outtextxy(270, y + 300, _T("游戏开发：panyu.tan"));
+		outtextxy(330, y + 350, _T("THE END"));
 		FlushBatchDraw();
 		Sleep(30);
 	}
@@ -925,6 +843,7 @@ void judge_plot_and_talk(int player_x ,int player_y, enum Map e_map)
 		}
 	}
 }
+
 
 
 
@@ -1778,7 +1697,7 @@ void pokemon_operate(pokemon *own_pm, int *own_now_bleed, pokemon *change_pm, in
 	{
 		show_change_pokemon_words(own_pm->name, change_pm->name);
 		change_pm->is_change = 0;  //交换完宝可梦，该宝可梦的is_change设置为0
-		 //如果own_pm = change_pm，这个函数结束之后，own_pm != change_pm，因为是局部变量，相当于值引用
+		//如果own_pm = change_pm，这个函数结束之后，own_pm != change_pm，因为是局部变量，相当于值引用
 		//替换了宝可梦
 		*own_now_bleed = change_pm->bleed;
 		pokemon pm = *own_pm;
@@ -2351,6 +2270,7 @@ void show_map()
 
 
 
+
 void keyboard_operation()
 {
 	int step = 10;
@@ -2432,6 +2352,92 @@ void gameover()
 	EndBatchDraw();
 	_getch();
 	closegraph();
+}
+
+
+
+
+
+void startup_struct_skill()
+{
+	strcpy(g_s_pm_skills[0].name, "scream");
+	g_s_pm_skills[0].damage = 60;
+	g_s_pm_skills[0].init_pp = 5;
+	g_s_pm_skills[0].left_pp = 5;
+
+	strcpy(g_s_pm_skills[1].name, "lighting");
+	g_s_pm_skills[1].damage = 120;
+	g_s_pm_skills[1].init_pp = 2;
+	g_s_pm_skills[1].left_pp = 2;
+
+	strcpy(g_s_pm_skills[2].name, "flash");
+	g_s_pm_skills[2].damage = 70;
+	g_s_pm_skills[2].init_pp = 4;
+	g_s_pm_skills[2].left_pp = 4;
+
+	strcpy(g_s_pm_skills[3].name, "thunder");
+	g_s_pm_skills[3].damage = 80;
+	g_s_pm_skills[3].init_pp = 3;
+	g_s_pm_skills[3].left_pp = 3;
+
+
+	strcpy(g_s_pm_skills[4].name, "catchit");
+	g_s_pm_skills[4].damage = 85;
+	g_s_pm_skills[4].init_pp = 3;
+	g_s_pm_skills[4].left_pp = 3;
+
+	strcpy(g_s_pm_skills[5].name, "eat");
+	g_s_pm_skills[5].damage = 70;
+	g_s_pm_skills[5].init_pp = 4;
+	g_s_pm_skills[5].left_pp = 4;
+
+	strcpy(g_s_pm_skills[6].name, "wind");
+	g_s_pm_skills[6].damage = 65;
+	g_s_pm_skills[6].init_pp = 4;
+	g_s_pm_skills[6].left_pp = 4;
+
+
+	//敌人技能
+	strcpy(g_s_pm_skills[7].name, "boom");
+	g_s_pm_skills[7].damage = 60;
+	g_s_pm_skills[7].init_pp = 2;
+	g_s_pm_skills[7].left_pp = 2;
+
+	strcpy(g_s_pm_skills[8].name, "waterattack");
+	g_s_pm_skills[8].damage = 70;
+	g_s_pm_skills[8].init_pp = 5;
+	g_s_pm_skills[8].left_pp = 5;
+
+	strcpy(g_s_pm_skills[9].name, "sword");
+	g_s_pm_skills[9].damage = 80;
+	g_s_pm_skills[9].init_pp = 5;
+	g_s_pm_skills[9].left_pp = 5;
+
+	strcpy(g_s_pm_skills[10].name, "firehigh");
+	g_s_pm_skills[10].damage = 90;
+	g_s_pm_skills[10].init_pp = 5;
+	g_s_pm_skills[10].left_pp = 5;
+
+	strcpy(g_s_pm_skills[11].name, "musicattack");
+	g_s_pm_skills[11].damage = 65;
+	g_s_pm_skills[11].init_pp = 5;
+	g_s_pm_skills[11].left_pp = 5;
+
+	strcpy(g_s_pm_skills[12].name, "lighton");
+	g_s_pm_skills[12].damage = 100;
+	g_s_pm_skills[12].init_pp = 5;
+	g_s_pm_skills[12].left_pp = 5;
+
+	strcpy(g_s_pm_skills[13].name, "star");
+	g_s_pm_skills[13].damage = 85;
+	g_s_pm_skills[13].init_pp = 5;
+	g_s_pm_skills[13].left_pp = 5;
+
+	strcpy(g_s_pm_skills[14].name, "windattack");
+	g_s_pm_skills[14].damage = 75;
+	g_s_pm_skills[14].init_pp = 5;
+	g_s_pm_skills[14].left_pp = 5;
+
 }
 
 
@@ -2535,3 +2541,5 @@ void startup_pokemon()
 	PM[4].s_skill[3] = g_s_pm_skills[10];
 
 }
+
+

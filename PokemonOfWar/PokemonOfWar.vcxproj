@@ -157,7 +157,11 @@
   <ItemGroup>
     <ClInclude Include="music.h" />
     <ClInclude Include="pokemon_skills.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="tools.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="PokemonOfWar.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
