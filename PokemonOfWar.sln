@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.28307.1000
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PokemonOfWar", "PokemonOfWar\PokemonOfWar.vcxproj", "{E5CD5D8B-DF58-4D08-B98D-5F8C214D1626}"
 EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "SetupPOW", "SetupPOW\SetupPOW.vdproj", "{5671C7AA-96CB-4FEE-8315-C09A4B1E1404}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -21,6 +23,10 @@ Global
 		{E5CD5D8B-DF58-4D08-B98D-5F8C214D1626}.Release|x64.Build.0 = Release|x64
 		{E5CD5D8B-DF58-4D08-B98D-5F8C214D1626}.Release|x86.ActiveCfg = Release|Win32
 		{E5CD5D8B-DF58-4D08-B98D-5F8C214D1626}.Release|x86.Build.0 = Release|Win32
+		{5671C7AA-96CB-4FEE-8315-C09A4B1E1404}.Debug|x64.ActiveCfg = Debug
+		{5671C7AA-96CB-4FEE-8315-C09A4B1E1404}.Debug|x86.ActiveCfg = Debug
+		{5671C7AA-96CB-4FEE-8315-C09A4B1E1404}.Release|x64.ActiveCfg = Release
+		{5671C7AA-96CB-4FEE-8315-C09A4B1E1404}.Release|x86.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

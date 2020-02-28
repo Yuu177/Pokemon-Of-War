@@ -4,7 +4,7 @@
 *	编译环境：vc2017 + EasyX_20200109(beta)
 *	Maker：	  panyu.tan
 *	最初版本：2020/2/7
-*	最后修改：2020/2/27
+*	最后修改：2020/2/28
 *******************************************/
 
 #include <graphics.h>
@@ -40,11 +40,12 @@ int   g_player_y;
 int   g_map_x;							//map截取的位置
 int   g_map_y;
 
-int g_game_state = 0;					//0为初始菜单界面，1为游戏界面
-int g_plot = 0;							//剧情判断
+int g_game_state = 0;					//0为初始菜单界面，1为开始新游戏， 2为读取进入游戏
+int g_plot = 7;							//剧情判断
 int g_is_win = 0;						//战斗胜利判断，0未loss，1未win
 
 time_t g_time_start, g_time_end;		//计算通关游戏时间
+int g_total_time = 0;
 
 
 //npc坐标
@@ -184,6 +185,11 @@ void next_step();														//下一步，按一下确认键
 void startup_struct_skill();											//初始化宝可梦技能
 void startup_npc();														//初始化npc位置
 
+
+//////计时//////
+void calculate_total_time();
+
+
 //读档和存档的函数
 void readRecordFile();
 void writeRecordFile();
@@ -264,6 +270,27 @@ int main(void)
 
 
 
+void calculate_total_time()
+{
+	g_time_end = time(NULL);
+	int tempTime = difftime(g_time_end, g_time_start);
+	FILE *fp;
+	if (g_game_state == 2 && (fp = fopen("资源文件\\save\\gamedata.dat", "r")) != NULL)
+	{
+		fseek(fp, 0L, SEEK_SET);
+		fscanf(fp, "%d", &g_total_time);
+		g_total_time += tempTime;
+		fclose(fp);
+	}
+	else
+	{
+		g_total_time += tempTime;
+	}
+}
+
+
+
+
 
 void startup_gamegraph()
 {
@@ -330,17 +357,18 @@ void readRecordFile()
 	fp = fopen("资源文件\\save\\gamedata.dat", "r");
 	if (fp != NULL)
 	{
+		fseek(fp, 0L, SEEK_SET);
 		fscanf(fp, "%d %d %d %d %d %d %d %d %d %d %d %d",
-			&g_map_x, &g_map_y, &g_player_x, &g_player_y, &g_player_picture_i, &g_player_picture_j, 
-			&g_plot, &g_time_start,
+			&g_total_time, &g_map_x, &g_map_y, &g_player_x, &g_player_y, 
+			&g_player_picture_i, &g_player_picture_j, &g_plot,
 			&struct_player.s_good[0].left, &struct_player.s_good[1].left,
 			&struct_player.s_good[2].left, &struct_player.s_good[3].left);
 	}
 	else
 	{
-		fclose(fp);
 		HWND wnd = GetHWnd();
-		MessageBox(wnd, _T("无法找到存档"), _T("警告"), MB_OK | MB_ICONWARNING);
+		MessageBox(wnd, _T("无法找到存档,请重新打开游戏"), _T("警告"), MB_OK | MB_ICONWARNING);
+		fclose(fp);
 		exit(1);
 	}
 	fclose(fp);
@@ -352,21 +380,24 @@ void readRecordFile()
 
 void writeRecordFile()
 {
+	//计算游戏时间，然后再存档
+	calculate_total_time();
 	FILE *fp;
 	fp = fopen("资源文件\\save\\gamedata.dat", "w");
 	if (fp != NULL)
 	{
+		fseek(fp, 0L, SEEK_SET);
 		fprintf(fp, "%d %d %d %d %d %d %d %d %d %d %d %d",
-			g_map_x, g_map_y, g_player_x, g_player_y, g_player_picture_i, g_player_picture_j, 
-			g_plot, g_time_start,
+			g_total_time, g_map_x, g_map_y, g_player_x, g_player_y, 
+			g_player_picture_i, g_player_picture_j, g_plot,
 			struct_player.s_good[0].left, struct_player.s_good[1].left,
 			struct_player.s_good[2].left, struct_player.s_good[3].left);
 	}
 	else
 	{
-		fclose(fp);
 		HWND wnd = GetHWnd();
 		MessageBox(wnd, _T("存档失败"), _T("警告"), MB_OK | MB_ICONWARNING);
+		fclose(fp);
 		exit(1);
 	}
 	fclose(fp);
@@ -615,12 +646,12 @@ void beginning_of_plot()
 void end_of_plot()
 {
 	music_end();
-	g_time_end = time(NULL);
+	//计算游戏时间
+	calculate_total_time();
+	int time_show = g_total_time / 60;
 	TCHAR w_time[30];
 	TCHAR w_showtime[50] = _T("通关时间：");
-	double time = difftime(g_time_end, g_time_start);
-	int t = time / 60;
-	wsprintf(w_time, _T("%d"), t);
+	wsprintf(w_time, _T("%d"), time_show);
 	lstrcat(w_showtime, w_time);
 	lstrcat(w_showtime, _T("分钟"));
 	int y;
@@ -1210,7 +1241,7 @@ void start_menu()
 				if (y == 255)
 				{
 					readRecordFile();
-					g_game_state = 1;
+					g_game_state = 2;
 					music_bk1();
 				}
 				if (y == 305)

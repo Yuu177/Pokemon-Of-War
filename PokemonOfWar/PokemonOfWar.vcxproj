@@ -163,6 +163,9 @@
   <ItemGroup>
     <ResourceCompile Include="PokemonOfWar.rc" />
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="资源文件\pow.ico" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
