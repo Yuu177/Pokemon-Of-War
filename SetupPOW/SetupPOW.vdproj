@@ -673,6 +673,14 @@
         "PrivateKeyFile" = "8:"
         "TimeStampServer" = "8:"
         "InstallerBootstrapper" = "3:2"
+            "BootstrapperCfg:{63ACBE69-63AA-4F98-B2B6-99F9E24495F2}"
+            {
+            "Enabled" = "11:TRUE"
+            "PromptEnabled" = "11:TRUE"
+            "PrerequisitesLocation" = "2:1"
+            "Url" = "8:"
+            "ComponentsUrl" = "8:"
+            }
         }
         "Release"
         {
@@ -689,6 +697,14 @@
         "PrivateKeyFile" = "8:"
         "TimeStampServer" = "8:"
         "InstallerBootstrapper" = "3:2"
+            "BootstrapperCfg:{63ACBE69-63AA-4F98-B2B6-99F9E24495F2}"
+            {
+            "Enabled" = "11:TRUE"
+            "PromptEnabled" = "11:TRUE"
+            "PrerequisitesLocation" = "2:1"
+            "Url" = "8:"
+            "ComponentsUrl" = "8:"
+            }
         }
     }
     "Deployable"
@@ -2962,7 +2978,7 @@
         "Product"
         {
         "Name" = "8:Microsoft Visual Studio"
-        "ProductName" = "8:SetupPOW"
+        "ProductName" = "8:Pokemon Of War"
         "ProductCode" = "8:{E656F56D-EE44-4A3C-A77C-18198C55C777}"
         "PackageCode" = "8:{A4E5A156-0723-48E9-B838-4E11FB80D0B9}"
         "UpgradeCode" = "8:{63F44594-B80C-403B-92B5-042DB298ADE3}"
@@ -2975,11 +2991,11 @@
         "Manufacturer" = "8:Default Company Name"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
-        "Title" = "8:SetupPOW"
+        "Title" = "8:Pokemon Of War"
         "Subject" = "8:"
-        "ARPCONTACT" = "8:Default Company Name"
+        "ARPCONTACT" = "8:panyu.tan"
         "Keywords" = "8:"
-        "ARPCOMMENTS" = "8:"
+        "ARPCOMMENTS" = "8:test game"
         "ARPURLINFOABOUT" = "8:"
         "ARPPRODUCTICON" = "8:"
         "ARPIconIndex" = "3:0"
@@ -3485,7 +3501,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_EBCBF98378C54076860B82D32216DC9F"
             {
-            "SourcePath" = "8:..\\Debug\\PokemonOfWar.exe"
+            "SourcePath" = "8:..\\Release\\PokemonOfWar.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_767994F345B448538B4BFC2D15696D5C"
