@@ -571,7 +571,7 @@ void npc_sec_office_talk2()
 
 void npc_green_takl1()
 {
-	show_dialog_box_words(_T("green girl:"), _T("欢迎来到战争里的口袋妈妈"), _T("my master is panyu.tan"));
+	show_dialog_box_words(_T("green girl:"), _T("欢迎来到战争里的口袋妈妈"), _T("my maker is panyu.tan"));
 	show_dialog_box_words(_T("green girl:"), _T("如果你有什么不懂的操作可以和我对话"), _T("也可以来找我聊天"));
 	show_dialog_box_words(_T("green girl:"), _T("反正我也帮不了你"), _T("祝你好运！"));
 }

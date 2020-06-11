@@ -477,6 +477,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_C855CC5F258242B2A7A67DBD85B89174"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_C9866A8091FB4D26A55BB13CDEC568E4"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -680,6 +686,14 @@
             "PrerequisitesLocation" = "2:1"
             "Url" = "8:"
             "ComponentsUrl" = "8:"
+                "Items"
+                {
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:.NETFramework,Version=v4.6.1"
+                    {
+                    "Name" = "8:Microsoft .NET Framework 4.6.1 (x86 and x64)"
+                    "ProductCode" = "8:.NETFramework,Version=v4.6.1"
+                    }
+                }
             }
         }
         "Release"
@@ -704,6 +718,14 @@
             "PrerequisitesLocation" = "2:1"
             "Url" = "8:"
             "ComponentsUrl" = "8:"
+                "Items"
+                {
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:.NETFramework,Version=v4.6.1"
+                    {
+                    "Name" = "8:Microsoft .NET Framework 4.6.1 (x86 and x64)"
+                    "ProductCode" = "8:.NETFramework,Version=v4.6.1"
+                    }
+                }
             }
         }
     }
@@ -2266,6 +2288,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C855CC5F258242B2A7A67DBD85B89174"
+            {
+            "SourcePath" = "8:..\\PokemonOfWar\\资源文件\\save\\test"
+            "TargetName" = "8:test"
+            "Tag" = "8:"
+            "Folder" = "8:_33D7A7D4241A4ACFA99867A0FEBF93D2"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C9866A8091FB4D26A55BB13CDEC568E4"
             {
             "SourcePath" = "8:..\\PokemonOfWar\\资源文件\\skill\\滚石.jpg"
@@ -2980,7 +3022,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Pokemon Of War"
         "ProductCode" = "8:{E656F56D-EE44-4A3C-A77C-18198C55C777}"
-        "PackageCode" = "8:{A4E5A156-0723-48E9-B838-4E11FB80D0B9}"
+        "PackageCode" = "8:{AFB7F87D-71FB-438C-A00B-991CE1F7C741}"
         "UpgradeCode" = "8:{63F44594-B80C-403B-92B5-042DB298ADE3}"
         "AspNetVersion" = "8:2.0.50727.0"
         "RestartWWWService" = "11:FALSE"
